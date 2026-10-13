@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080908">
+  <meta name="description" content="Интерактивный школьный проект о том, как распознавать дипфейки и проверять информацию в интернете.">
+  <title>HAUNTED INTERNET — Проверь реальность</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="container nav">
+      <a class="brand" href="#top">HAUNTED<span>_</span>INTERNET</a>
+      <button class="menu-toggle" id="menuToggle" aria-expanded="false" aria-controls="navLinks">МЕНЮ ☰</button>
+      <nav class="navlinks" id="navLinks" aria-label="Основная навигация">
+        <a href="#about">Досье</a><a href="#quiz">Тест</a><a href="#signs">Признаки</a>
+        <a href="#check">Проверка</a><a href="#lab">Лаборатория</a><a href="#tools">Инструменты</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="forest" aria-hidden="true">
+        <svg viewBox="0 0 1400 900" preserveAspectRatio="xMidYMid slice">
+          <defs><linearGradient id="mist" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#1b2b13" stop-opacity="0"/><stop offset=".7" stop-color="#27381a" stop-opacity=".5"/><stop offset="1" stop-color="#080908" stop-opacity=".9"/></linearGradient></defs>
+          <g fill="#10180c" opacity=".9">
+            <path d="M0 900V270L70 390 120 250 185 440 240 300 300 900Z"/><path d="M180 900V180L260 330 310 150 390 410 450 220 520 900Z"/>
+            <path d="M900 900V260L970 380 1030 170 1100 410 1170 220 1240 900Z"/><path d="M1120 900V130L1190 330 1260 80 1320 360 1400 210V900Z"/>
+          </g>
+          <g stroke="#26351a" stroke-width="8" opacity=".8"><path d="M55 900L75 300M250 900L300 200M380 900L340 400M1040 900L1030 180M1250 900L1270 100M1370 900L1330 280"/></g>
+          <rect width="1400" height="900" fill="url(#mist)"/>
+        </svg>
+      </div>
+      <div class="container">
+        <div class="hero-grid">
+          <div class="hero-copy">
+            <p class="eyebrow">Независимое цифровое расследование // 001</p>
+            <h1>HAUNTED<span>INTERNET</span></h1>
+            <p class="lead">В мире, где искусственный интеллект может подделать лицо, голос и событие, <em>кому можно доверять?</em></p>
+            <p class="hero-quote">РЕАЛЬНОСТЬ ВСЁ СЛОЖНЕЕ ПРОВЕРИТЬ</p>
+            <a class="button" href="#quiz">НАЧАТЬ РАССЛЕДОВАНИЕ <span>↘</span></a>
+          </div>
+          <div class="hero-art" aria-label="Абстрактный символ цифрового глаза">
+            <span class="art-label label-top">СТАТУС СИГНАЛА: НЕСТАБИЛЕН</span>
+            <div class="orb"><div class="eye"></div><div class="scanline"></div></div>
+            <span class="art-label label-bottom">ПРОВЕРКА РЕАЛЬНОСТИ: НУЖНА<br>СКАНИРОВАНИЕ СЕТИ...</span>
+          </div>
+        </div>
+        <div class="statusline"><span>БАЗА ДАННЫХ <b>● В СЕТИ</b></span><span>АРХИВ ЦИФРОВЫХ ПОДДЕЛОК / 2026</span><span>НЕ ВЕРЬ СЛЕПО</span></div>
+      </div>
+    </section>
+
+    <section class="section" id="about">
+      <div class="container">
+        <div class="section-head reveal"><div><div class="section-no">01 / ДОСЬЕ</div><h2>Что такое<br>дипфейк?</h2></div><p class="section-intro">Дипфейк — синтетическое или изменённое изображение, видео либо аудио, которое может имитировать человека, его голос или событие.</p></div>
+        <div class="grid three">
+          <article class="card reveal"><span class="tag">ТИП_01 / ИЗОБРАЖЕНИЕ</span><h3>ЛИЦО</h3><p>ИИ может создать реалистичный портрет или заменить лицо на фотографии. Проверяй источник, контекст и ранние версии изображения, а не только отдельные детали.</p></article>
+          <article class="card reveal"><span class="tag">ТИП_02 / ЗВУК</span><h3>ГОЛОС</h3><p>Клонированный голос может звучать знакомо. Если кто-то просит срочно отправить деньги, перезвони по номеру, который уже есть в твоих контактах.</p></article>
+          <article class="card reveal"><span class="tag">ТИП_03 / ВИДЕО</span><h3>ВИДЕО</h3><p>Видео можно сгенерировать или изменить: например, подменить лицо или создать впечатление, будто человек сказал то, чего не говорил.</p></article>
+        </div>
+        <div class="callout reveal"><strong>ВАЖНО //</strong> Настоящие материалы тоже могут выглядеть странно из-за сжатия, освещения или монтажа. Убедительный дипфейк может не иметь заметных ошибок. Одного признака недостаточно.</div>
+      </div>
+    </section>
+
+    <section class="section" id="quiz">
+      <div class="container">
+        <div class="section-head reveal"><div><div class="section-no">02 / ИНТЕРАКТИВНЫЙ ТЕСТ</div><h2>Можно ли<br>верить глазам?</h2></div><p class="section-intro">8 ситуаций. Три варианта ответа. Не угадывай по ощущениям — оцени, что действительно известно.</p></div>
+        <div class="quiz-shell reveal">
+          <aside class="quiz-side">
+            <div class="micro">ДЕЛО / 008</div><h3>НАСТОЯЩЕЕ<br>ИЛИ ПОДДЕЛКА<span>?</span></h3>
+            <p>Отвечай не на то, что кажется правдой, а на то, что позволяют заключить имеющиеся доказательства.</p>
+            <div class="progress-track"><div class="progress-fill" id="quizProgress"></div></div>
+            <div class="quiz-count" id="quizCount">ЗАДАНИЕ 01 / 08</div>
+            <div class="score-label">ТВОЙ РЕЗУЛЬТАТ</div><div class="score-big" id="score">00</div><p id="scoreHint">Начни расследование.</p>
+          </aside>
+          <div class="quiz-main" id="quizMain" aria-live="polite"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="signs">
+      <div class="container">
+        <div class="section-head reveal"><div><div class="section-no">03 / ПРИЗНАКИ ПРЕДУПРЕЖДЕНИЯ</div><h2>7 тревожных<br>сигналов</h2></div><p class="section-intro">Нажми на пункт, чтобы узнать, на что обратить внимание и как проверить подозрение.</p></div>
+        <div class="redflags reveal">
+          <article class="flag"><button aria-expanded="false"><span class="flag-num">01</span><span class="flag-title">ВИЗУАЛЬНЫЕ АРТЕФАКТЫ</span><span class="flag-plus">＋</span></button><div class="flag-body">Странности в отражениях, освещении или мелких деталях — повод присмотреться. Но сжатие и плохая камера тоже создают артефакты. <b>Проверь:</b> найди исходник и сравни версии.</div></article>
+          <article class="flag"><button aria-expanded="false"><span class="flag-num">02</span><span class="flag-title">ЛИЦО И СИНХРОННОСТЬ ГУБ</span><span class="flag-plus">＋</span></button><div class="flag-body">Несовпадение губ и звука может указывать на монтаж, но бывает из-за задержки. <b>Проверь:</b> найди оригинал и другие ракурсы, если они есть.</div></article>
+          <article class="flag"><button aria-expanded="false"><span class="flag-num">03</span><span class="flag-title">ОСОБЕННОСТИ ГОЛОСА</span><span class="flag-plus">＋</span></button><div class="flag-body">Необычная интонация или звуковые скачки — повод проверить запись, но не доказательство синтеза. <b>Проверь:</b> подтверди сообщение по независимому каналу.</div></article>
+          <article class="flag"><button aria-expanded="false"><span class="flag-num">04</span><span class="flag-title">НЕСОВПАДЕНИЕ КОНТЕКСТА</span><span class="flag-plus">＋</span></button><div class="flag-body">Подлинное фото может сопровождаться ложной подписью, а старый ролик — выдаваться за новый. <b>Проверь:</b> дату, место и более ранние публикации.</div></article>
+          <article class="flag"><button aria-expanded="false"><span class="flag-num">05</span><span class="flag-title">НЕТ ПЕРВОИСТОЧНИКА</span><span class="flag-plus">＋</span></button><div class="flag-body">Без автора, даты или исходной ссылки сложно установить происхождение материала. <b>Проверь:</b> найди первую публикацию. Отсутствие источника не доказывает подделку, но снижает уверенность.</div></article>
+          <article class="flag"><button aria-expanded="false"><span class="flag-num">06</span><span class="flag-title">ЭМОЦИОНАЛЬНОЕ ДАВЛЕНИЕ</span><span class="flag-plus">＋</span></button><div class="flag-body">Фразы «срочно», «никому не говори» или «поделись прямо сейчас» подталкивают к импульсивным действиям. <b>Проверь:</b> остановись и найди подтверждение.</div></article>
+          <article class="flag"><button aria-expanded="false"><span class="flag-num">07</span><span class="flag-title">НЕТ НЕЗАВИСИМЫХ ПОДТВЕРЖДЕНИЙ</span><span class="flag-plus">＋</span></button><div class="flag-body">Если важное заявление есть только в одном сомнительном аккаунте, подтверждения пока недостаточно. <b>Проверь:</b> ищи независимые надёжные источники, а не копии одного поста.</div></article>
+        </div>
+        <div class="callout"><strong>ЗАПОМНИ //</strong> Ни один тревожный сигнал сам по себе не доказывает, что материал поддельный. Используй несколько независимых способов проверки.</div>
+      </div>
+    </section>
+
+    <section class="section" id="check">
+      <div class="container">
+        <div class="section-head reveal"><div><div class="section-no">04 / ПАМЯТКА</div><h2>Не гадай.<br>Проверяй.</h2></div><p class="section-intro">Чек-лист, который пригодится для подозрительного видео, фотографии, голосового сообщения или новости.</p></div>
+        <div class="steps reveal" id="checklist">
+          <label class="step"><input type="checkbox"><span><b>ШАГ 01 — ОСТАНОВИСЬ</b><p>Не пересылай шокирующее сообщение и не принимай срочных решений.</p></span></label>
+          <label class="step"><input type="checkbox"><span><b>ШАГ 02 — НАЙДИ ОРИГИНАЛ</b><p>Найди первоисточник, дату публикации и первоначальную версию материала.</p></span></label>
+          <label class="step"><input type="checkbox"><span><b>ШАГ 03 — ПОИЩИ ИЗОБРАЖЕНИЕ</b><p>Попробуй обратный поиск изображения, чтобы найти более ранние публикации.</p></span></label>
+          <label class="step"><input type="checkbox"><span><b>ШАГ 04 — СРАВНИ ИСТОЧНИКИ</b><p>Сравни сообщение с несколькими независимыми надёжными источниками.</p></span></label>
+          <label class="step"><input type="checkbox"><span><b>ШАГ 05 — ИЗУЧИ ДЕТАЛИ</b><p>Проверь контекст, согласованность изображения и звука, возможные признаки монтажа.</p></span></label>
+          <label class="step"><input type="checkbox"><span><b>ШАГ 06 — ПРОВЕРЬ ПРОИСХОЖДЕНИЕ</b><p>Если доступно, изучи сведения о происхождении файла и Content Credentials.</p></span></label>
+          <label class="step"><input type="checkbox"><span><b>ШАГ 07 — СДЕЛАЙ ВЫВОД</b><p>Выбери: подтверждено, опровергнуто или пока недостаточно данных.</p></span></label>
+          <label class="step"><input type="checkbox"><span><b>ГЛАВНОЕ ПРАВИЛО</b><p>Отсутствие метаданных или метки происхождения не доказывает подделку.</p></span></label>
+        </div>
+        <div class="check-progress" id="checkProgress">ПРОГРЕСС ПРОВЕРКИ: 0 / 8</div>
+        <div class="button-row"><button class="button" id="startInvestigation">НАЧАТЬ РАССЛЕДОВАНИЕ ↗</button></div>
+        <div class="lab-detail" id="investigationPrompt" hidden>Сценарий: в школьном чате появилось видео директора с неожиданным объявлением. Не делай вывод только по видео. Найди официальный канал школы, проверь дату и уточни информацию через знакомый контакт. Пока подтверждения нет, корректный статус — «недостаточно данных».</div>
+      </div>
+    </section>
+
+    <section class="section" id="lab">
+      <div class="container">
+        <div class="section-head reveal"><div><div class="section-no">05 / РЕЖИМ СИМУЛЯЦИИ</div><h2>Лаборатория<br>дипфейков</h2></div><p class="section-intro">Учебный симулятор. Это не настоящий ИИ-детектор: он помогает тренировать метод проверки, а не обещает безошибочный вердикт.</p></div>
+        <div class="grid three">
+          <article class="lab-card reveal"><div class="lab-icon">[ ИЗО ]</div><h3>ЭКСПЕРИМЕНТ А — ФОТО</h3><p>Ты видишь странное изображение. Что делать в первую очередь?</p><button class="plain-btn lab-open" data-lab="image">ОТКРЫТЬ ЭКСПЕРИМЕНТ ↗</button><div class="lab-detail" id="lab-image" hidden><b>Разбор:</b> не объявляй картинку созданной ИИ только из-за странной детали. Найди ранние версии через обратный поиск, проверь автора и контекст, сравни независимые публикации.</div></article>
+          <article class="lab-card reveal"><div class="lab-icon">[ ЗВУК ]</div><h3>ЭКСПЕРИМЕНТ Б — ГОЛОС</h3><p>«Это я, срочно переведи деньги, потом объясню». Голос звучит знакомо.</p><button class="plain-btn lab-open" data-lab="audio">ОТКРЫТЬ ЭКСПЕРИМЕНТ ↗</button><div class="lab-detail" id="lab-audio" hidden><b>Разбор:</b> не переводи деньги только на основании голоса. Перезвони по сохранённому номеру или договоритесь о кодовом слове. Сходство голоса не подтверждает личность.</div></article>
+          <article class="lab-card reveal"><div class="lab-icon">[ ТЕКСТ ]</div><h3>ЭКСПЕРИМЕНТ В — НОВОСТЬ</h3><p>Сенсационный пост с громким заголовком не содержит ссылок на документы.</p><button class="plain-btn lab-open" data-lab="news">ОТКРЫТЬ ЭКСПЕРИМЕНТ ↗</button><div class="lab-detail" id="lab-news" hidden><b>Разбор:</b> ищи первоисточник, дату и независимое подтверждение. Если проверить нечего, вывод — «недостаточно данных», а не автоматически «фейк».</div></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="risks">
+      <div class="container">
+        <div class="section-head reveal"><div><div class="section-no">06 / УГРОЗЫ</div><h2>Тёмная сторона<br>искусственного ИИ</h2></div><p class="section-intro">Технология сама по себе не делает контент ложным или вредным. Риски зависят от согласия, прозрачности, контекста и цели использования.</p></div>
+        <div class="grid three">
+          <article class="risk reveal"><div class="risk-icon">УГРОЗА_01</div><h3>МОШЕННИЧЕСТВО С ГОЛОСОМ</h3><p>Злоумышленник имитирует голос родственника и просит срочно перевести деньги. Перепроверь личность по другому каналу.</p></article>
+          <article class="risk reveal"><div class="risk-icon">УГРОЗА_02</div><h3>ЛОЖНОЕ ЗАЯВЛЕНИЕ</h3><p>Поддельное видео приписывает человеку слова, которых он не произносил. Ищи полную запись и надёжные подтверждения.</p></article>
+          <article class="risk reveal"><div class="risk-icon">УГРОЗА_03</div><h3>ДЕЗИНФОРМАЦИЯ</h3><p>Старый или синтетический материал распространяют как новость. Проверяй дату, место и первоисточник.</p></article>
+          <article class="risk reveal"><div class="risk-icon">УГРОЗА_04</div><h3>УЩЕРБ РЕПУТАЦИИ</h3><p>Подделка может навредить репутации и отношениям. Не распространяй непроверенный контент с обвинениями.</p></article>
+          <article class="risk reveal"><div class="risk-icon">УГРОЗА_05</div><h3>ИЗОБРАЖЕНИЯ БЕЗ СОГЛАСИЯ</h3><p>Создание интимных изображений без согласия причиняет реальный вред. Не сохраняй и не пересылай такие материалы; сообщи платформе или доверенному взрослому.</p></article>
+          <article class="risk reveal"><div class="risk-icon">УГРОЗА_06</div><h3>ЛОЖНОЕ ОПРОВЕРЖЕНИЕ</h3><p>Настоящую запись тоже могут объявить дипфейком. Поэтому нужны проверяемые доказательства, а не только заявление участника.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="tools">
+      <div class="container">
+        <div class="section-head reveal"><div><div class="section-no">07 / НАБОР ИНСТРУМЕНТОВ</div><h2>Инструменты<br>расследователя</h2></div><p class="section-intro">Сервисы для поиска оригиналов, проверки контекста и происхождения контента. Они помогают расследовать, но не гарантируют вердикт.</p></div>
+        <div class="tool-grid">
+          <article class="tool reveal"><div class="tool-mark">GL</div><h3>Google Lens</h3><p>Ищи похожие изображения и страницы, где они встречались.</p><a href="https://lens.google/" target="_blank" rel="noopener noreferrer">Открыть сервис ↗</a></article>
+          <article class="tool reveal"><div class="tool-mark">T!</div><h3>TinEye</h3><p>Обратный поиск изображений и поиск более ранних копий.</p><a href="https://tineye.com/" target="_blank" rel="noopener noreferrer">Открыть сервис ↗</a></article>
+          <article class="tool reveal"><div class="tool-mark">IV</div><h3>InVID-WeVerify</h3><p>Инструменты для анализа и проверки фото и видео.</p><a href="https://www.invid-project.eu/" target="_blank" rel="noopener noreferrer">Открыть сервис ↗</a></article>
+          <article class="tool reveal"><div class="tool-mark">FC</div><h3>Google Fact Check Explorer</h3><p>Ищи материалы фактчекинга по утверждениям и ключевым словам.</p><a href="https://toolbox.google.com/factcheck/explorer" target="_blank" rel="noopener noreferrer">Открыть сервис ↗</a></article>
+          <article class="tool reveal"><div class="tool-mark">C2</div><h3>Content Credentials</h3><p>Проверка доступных сведений о происхождении цифрового контента.</p><a href="https://contentcredentials.org/verify" target="_blank" rel="noopener noreferrer">Открыть сервис ↗</a></article>
+        </div>
+        <p class="fine-print">Доступность функций зависит от типа файла и сервиса. Отсутствие результата не означает, что материал поддельный.</p>
+      </div>
+    </section>
+
+    <section class="section" id="boss">
+      <div class="container">
+        <div class="section-head reveal"><div><div class="section-no">08 / ФИНАЛЬНЫЙ БОСС</div><h2>Последнее<br>расследование</h2></div><p class="section-intro">Собери улики и выбери наиболее обоснованный вывод.</p></div>
+        <div class="boss reveal">
+          <div class="micro">ДЕЛО № 009 // УЧЕБНЫЙ СЦЕНАРИЙ</div>
+          <div class="boss-title">ВИРУСНОЕ<br>ЗАЯВЛЕНИЕ.</div>
+          <p>В соцсетях распространяется ролик, в котором публичный человек якобы делает шокирующее заявление. Пост быстро набирает просмотры, но ссылка ведёт на перезалив без автора. Это вымышленная учебная ситуация, а не реальная новость.</p>
+          <div class="clue-list">
+            <label class="clue"><input type="checkbox" class="clueCheck"><span><b>УЛИКА А — ИСТОЧНИК</b><br>Пока найден только перезалив. Оригинальной публикации нет.</span></label>
+            <label class="clue"><input type="checkbox" class="clueCheck"><span><b>УЛИКА Б — КОНТЕКСТ</b><br>Дата и место записи не указаны.</span></label>
+            <label class="clue"><input type="checkbox" class="clueCheck"><span><b>УЛИКА В — ПОДТВЕРЖДЕНИЯ</b><br>Независимых подтверждений в сценарии пока не найдено.</span></label>
+            <label class="clue"><input type="checkbox" class="clueCheck"><span><b>УЛИКА Г — ПРОИСХОЖДЕНИЕ</b><br>Данных о происхождении файла нет. Само по себе это ничего не доказывает.</span></label>
+          </div>
+          <div class="micro">ВЫБЕРИ ВЕРДИКТ</div>
+          <div class="verdicts"><button class="button secondary verdict" data-verdict="confirmed">Информация подтверждена</button><button class="button secondary verdict" data-verdict="false">Информация опровергнута</button><button class="button verdict" data-verdict="unknown">Недостаточно данных</button></div>
+          <div class="boss-result" id="bossResult" hidden aria-live="polite"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="sources">
+      <div class="container">
+        <div class="section-head reveal"><div><div class="section-no">09 / ИСТОЧНИКИ</div><h2>Источники и<br>о проекте</h2></div><p class="section-intro">Учебный проект по информатике для 10 класса. Материал объясняет базовые способы проверки и не является автоматическим детектором дипфейков.</p></div>
+        <div class="sources reveal">
+          <div class="source"><b>NIST — исследования цифровой криминалистики</b>Материалы об анализе цифровых медиа и синтетического контента.<br><a href="https://www.nist.gov/" target="_blank" rel="noopener noreferrer">Открыть сайт ↗</a></div>
+          <div class="source"><b>C2PA — происхождение контента</b>Стандарты и спецификации для описания происхождения цифрового контента.<br><a href="https://c2pa.org/" target="_blank" rel="noopener noreferrer">Открыть сайт ↗</a></div>
+          <div class="source"><b>Google Fact Check Explorer</b>Поиск материалов фактчекинга.<br><a href="https://toolbox.google.com/factcheck/explorer" target="_blank" rel="noopener noreferrer">Открыть сервис ↗</a></div>
+          <div class="source"><b>Главный принцип</b>Используй несколько независимых способов, ищи первоисточник и не считай отсутствие визуальных ошибок доказательством подлинности.</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer"><div class="container footer-top"><div><div class="footer-brand">HAUNTED<span>_</span>INTERNET</div><div>НЕ ВЕРЬ СЛЕПО. ПРОВЕРЯЙ ВСЁ.</div></div><p class="smallnote">Технологии могут подделать изображение, голос и даже целое событие. Проверка первоисточников, контекста и независимых подтверждений помогает отличать доказательства от манипуляции.</p></div><div class="container copyright">Школьный проект по информатике · 10 класс · Интерактивный учебный материал</div></footer>
+  <script src="script.js"></script>
+</body>
+</html>
