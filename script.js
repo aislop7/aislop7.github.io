@@ -127,3 +127,51 @@ const observer = new IntersectionObserver(entries => {
   });
 },{threshold:.12});
 document.querySelectorAll(".reveal").forEach(el => observer.observe(el));
+
+// Rainbow Bridge trail: ghostly green/purple sparks follow the pointer.
+(() => {
+  if (window.matchMedia('(pointer: coarse)').matches || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const canvas = document.createElement('canvas');
+  canvas.id = 'cursor-trail';
+  canvas.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(canvas);
+  const ctx = canvas.getContext('2d');
+  let w = 0, h = 0, dpr = 1;
+  const particles = [];
+  let last = 0;
+  const colors = ['#b6ff38', '#c6a1ff', '#a855f7', '#ff5a91', '#e8e0ef'];
+  function resize(){
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    w = window.innerWidth; h = window.innerHeight;
+    canvas.width = Math.floor(w * dpr); canvas.height = Math.floor(h * dpr);
+    canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  window.addEventListener('resize', resize, {passive:true}); resize();
+  window.addEventListener('pointermove', (e) => {
+    const now = performance.now();
+    if (now - last < 9) return;
+    last = now;
+    for(let i=0;i<2;i++) particles.push({
+      x:e.clientX+(Math.random()-.5)*8, y:e.clientY+(Math.random()-.5)*8,
+      vx:(Math.random()-.5)*1.1, vy:(Math.random()-.5)*1.1,
+      life:1, decay:.018+Math.random()*.025, size:1.1+Math.random()*3.2,
+      color:colors[Math.floor(Math.random()*colors.length)], cross:Math.random()>.72
+    });
+    if(particles.length>150) particles.splice(0,particles.length-150);
+  }, {passive:true});
+  function draw(){
+    ctx.clearRect(0,0,w,h);
+    for(let i=particles.length-1;i>=0;i--){
+      const p=particles[i]; p.x+=p.vx; p.y+=p.vy; p.vy-=.012; p.life-=p.decay;
+      if(p.life<=0){particles.splice(i,1);continue;}
+      ctx.globalAlpha=Math.max(0,p.life); ctx.fillStyle=p.color; ctx.shadowColor=p.color; ctx.shadowBlur=12;
+      if(p.cross){
+        ctx.fillRect(p.x-p.size/2,p.y-p.size*2,p.size,p.size*4);
+        ctx.fillRect(p.x-p.size*2,p.y-p.size/2,p.size*4,p.size);
+      } else {ctx.beginPath();ctx.arc(p.x,p.y,p.size*p.life,0,Math.PI*2);ctx.fill();}
+    }
+    ctx.globalAlpha=1;ctx.shadowBlur=0;requestAnimationFrame(draw);
+  }
+  draw();
+})();
