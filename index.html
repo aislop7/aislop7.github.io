@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>haunted internet</title>
+<meta name="description" content="haunted internet — дипфейки: как они работают, чем опасны и как от них защититься.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- UnifrakturCook — название, Rubik Distressed — заголовки, PT Mono — текст -->
+<link href="https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&family=PT+Mono&family=Rubik+Distressed&family=JetBrains+Mono:wght@400;700&display=swap&subset=cyrillic" rel="stylesheet">
+
+<style>
+/* =====================================================
+   1. ДИЗАЙН-СИСТЕМА (переменные)
+   ===================================================== */
+:root{
+  --bg:#0b0a0e; --bg2:#14121a; --fg:#e3e0d8; --muted:#9a9aa4;
+  --c1:#b9c3cc; --c2:#c4571f; --c3:#b8863a;
+  --glass:rgba(20,18,26,.74); --bd:rgba(185,195,204,.2);
+  --shadow:6px 6px 0 rgba(196,87,31,.3);
+  --f-head:'PT Mono','Courier New',monospace;
+  --f-display:'Rubik Distressed','Rubik','Arial Black',sans-serif;
+  --f-gothic:'UnifrakturCook','Old English Text MT',serif;
+  --f-body:'PT Mono','Courier New',monospace;
+  --f-mono:'JetBrains Mono',ui-monospace,monospace;
+  --r:3px;
+}
+[data-theme="light"]{
+  --bg:#d9d6cd; --bg2:#cbc8bd; --fg:#16141a; --muted:#4d4b55;
+  --c1:#2a2f3a; --c2:#a8430f; --c3:#7a5a1a;
+  --glass:rgba(238,235,226,.82); --bd:rgba(22,20,26,.3);
+  --shadow:5px 5px 0 rgba(168,67,15,.28);
+}
+/* «Режим призрака» — пасхалка */
+body.matrix{ --bg:#000; --bg2:#120000; --fg:#ffd8d8; --muted:#c26b6b; --c1:#ff3030; --c2:#ff3030; --c3:#ff8a8a; --glass:rgba(255,0,0,.06); --bd:rgba(255,48,48,.4); --shadow:6px 6px 0 rgba(255,0,0,.25); }
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:80px}
+body{
+  background:var(--bg); color:var(--fg); font-family:var(--f-body);
+  line-height:1.65; overflow-x:hidden; -webkit-font-smoothing:antialiased;
+  transition:background .4s,color .4s;
+}
+body.locked{overflow:hidden}
+a{color:var(--c1);text-decoration:none}
+a:hover{text-decoration:underline}
+:focus-visible{outline:2px solid var(--c3);outline-offset:3px;border-radius:6px}
+button{font:inherit;color:inherit;cursor:pointer;background:none;border:0}
+ul{list-style:none}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* =====================================================
+   2. ОВЕРЛЕИ: шум, scanlines, фон, курсор
+   ===================================================== */
+#bg{position:fixed;inset:0;width:100%;height:100%;z-index:-1}
+.grain,.scan{position:fixed;inset:0;pointer-events:none;z-index:9000}
+.grain{
+  opacity:.17; mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  animation:grain 1s steps(6) infinite;
+}
+@keyframes grain{0%{transform:translate(0,0)}20%{transform:translate(-3%,2%)}40%{transform:translate(2%,-3%)}60%{transform:translate(-2%,-1%)}80%{transform:translate(3%,3%)}100%{transform:translate(0,0)}}
+.scan{opacity:.18;background:repeating-linear-gradient(to bottom,transparent 0 2px,rgba(0,0,0,.55) 2px 3px)}
+[data-theme="light"] .scan{opacity:.04}
+
+.forest{position:fixed;left:0;right:0;bottom:0;height:62vh;z-index:-1;pointer-events:none;background:linear-gradient(to top,rgba(185,195,204,.2),transparent 78%)}
+.forest svg{width:100%;height:100%;display:block}
+[data-theme="light"] .forest{background:linear-gradient(to top,rgba(255,255,255,.35),transparent 78%)}
+.grade{position:fixed;inset:0;pointer-events:none;z-index:8800;background:linear-gradient(180deg,rgba(110,130,170,.07),rgba(196,87,31,.09))}
+h2{text-shadow:2px 0 rgba(196,87,31,.35),-2px 0 rgba(90,130,255,.28)}
+.glitch{text-shadow:-3px 0 rgba(90,130,255,.55),3px 0 rgba(196,87,31,.55),0 0 30px rgba(196,87,31,.3)!important}
+#intro::before,#intro::after{content:"";position:absolute;left:0;right:0;height:11%;background:#000;z-index:1}
+#intro::before{top:0}#intro::after{bottom:0}
+.vignette{position:fixed;inset:0;pointer-events:none;z-index:8900;background:radial-gradient(ellipse at center,transparent 45%,rgba(0,0,0,.78) 100%);animation:flick 6s infinite steps(1)}
+[data-theme="light"] .vignette{background:radial-gradient(ellipse at center,transparent 55%,rgba(60,30,20,.35) 100%)}
+@keyframes flick{0%,100%{opacity:1}47%{opacity:1}48%{opacity:.8}49%{opacity:1}73%{opacity:1}74%{opacity:.65}75%{opacity:1}}
+.vhs{position:fixed;left:0;right:0;height:90px;top:-100px;pointer-events:none;z-index:8950;background:linear-gradient(to bottom,transparent,rgba(185,195,204,.07),transparent);animation:track 9s linear infinite}
+@keyframes track{to{transform:translateY(calc(100vh + 200px))}}
+#progress{position:fixed;top:0;left:0;height:3px;width:0;z-index:9500;background:var(--c2);box-shadow:0 0 10px var(--c2)}
+
+body.has-cursor, body.has-cursor *{cursor:none!important}
+#cursorDot,#cursorRing{position:fixed;top:0;left:0;pointer-events:none;z-index:9999;border-radius:50%;opacity:0;transition:opacity .3s}
+body.has-cursor.cursor-on #cursorDot,body.has-cursor.cursor-on #cursorRing{opacity:1}
+#cursorDot{width:8px;height:8px;margin:-4px 0 0 -4px;background:var(--c1);box-shadow:0 0 12px var(--c1)}
+#cursorRing{width:38px;height:38px;margin:-19px 0 0 -19px;border:1.5px solid var(--c2);transition:width .25s,height .25s,margin .25s,background .25s,opacity .3s}
+#cursorRing.hover{width:64px;height:64px;margin:-32px 0 0 -32px;background:rgba(196,87,31,.18)}
+#trail{position:fixed;inset:0;pointer-events:none;z-index:9998}
+
+/* =====================================================
+   3. ИНТРО «СКАНИРОВАНИЕ ЛИЦА»
+   ===================================================== */
+#intro{position:fixed;inset:0;z-index:10000;background:#050303;display:flex;align-items:center;justify-content:center;transition:opacity .8s,visibility .8s}
+#intro.done{opacity:0;visibility:hidden}
+#introCanvas{position:absolute;inset:0;width:100%;height:100%}
+#introLog{position:absolute;left:0;right:0;bottom:15%;text-align:center;font-family:var(--f-mono);color:#b9c3cc;font-size:clamp(.9rem,2.4vw,1.3rem);letter-spacing:.12em;min-height:6em;padding:0 16px}
+#introLog p{opacity:0;animation:fadein .4s forwards}
+#introLog p.err{color:#c4571f;text-shadow:0 0 12px #c4571f}
+@keyframes fadein{to{opacity:1}}
+#skipIntro{position:absolute;top:18px;right:18px;font-family:var(--f-mono);font-size:.8rem;color:#9aa8c4;border:1px solid #333;padding:6px 12px;border-radius:2px;z-index:2}
+#skipIntro:hover{color:#fff;border-color:#b9c3cc}
+
+/* =====================================================
+   4. ШАПКА И НАВИГАЦИЯ
+   ===================================================== */
+header.top{position:fixed;top:0;left:0;right:0;z-index:900;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px clamp(16px,3vw,40px);background:color-mix(in srgb,var(--bg) 70%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--bd)}
+.logo{font-family:var(--f-gothic);font-weight:700;font-size:1.7rem;line-height:1;user-select:none}
+.logo span{color:var(--c2)}
+nav#nav ul{display:flex;gap:4px;flex-wrap:wrap}
+nav#nav a{display:block;padding:6px 10px;border-radius:2px;font-size:.85rem;color:var(--muted);font-family:var(--f-body);transition:.25s}
+nav#nav a:hover,nav#nav a.active{color:#fff;background:var(--c2);text-decoration:none;box-shadow:none}
+.ctrls{display:flex;gap:8px;align-items:center}
+.ibtn{width:38px;height:38px;border-radius:3px;border:1px solid var(--bd);background:var(--glass);display:grid;place-items:center;font-size:.8rem;font-family:var(--f-mono);transition:.25s}
+.ibtn:hover{border-color:var(--c1);box-shadow:0 0 14px var(--c1)}
+.ibtn[aria-pressed="false"]{opacity:.55;text-decoration:line-through}
+#burger{display:none}
+@media (max-width:1180px){
+  #burger{display:grid}
+  nav#nav{position:fixed;top:62px;left:0;right:0;padding:16px;background:var(--bg);border-bottom:1px solid var(--bd);transform:translateY(-130%);transition:transform .35s;max-height:calc(100vh - 62px);overflow:auto}
+  nav#nav.open{transform:none}
+  nav#nav ul{flex-direction:column}
+  nav#nav a{font-size:.95rem;padding:12px 14px}
+}
+
+/* =====================================================
+   5. ОБЩИЕ БЛОКИ
+   ===================================================== */
+main{position:relative}
+section.sec{padding:clamp(70px,10vw,130px) clamp(16px,4vw,48px);max-width:1240px;margin:0 auto}
+.kicker{color:var(--muted);font-size:.95rem;font-weight:500;margin-bottom:8px}
+h2{font-family:var(--f-display);font-weight:400;font-size:clamp(1.8rem,4.6vw,3.4rem);line-height:1.1;margin-bottom:18px;text-transform:lowercase}
+h2 em{font-style:normal;color:var(--c2)}
+h3{font-family:var(--f-head);font-weight:600;font-size:1.05rem;margin-bottom:8px}
+.lead{color:var(--muted);font-size:clamp(1rem,1.6vw,1.2rem);max-width:760px;margin-bottom:34px}
+.grid{display:grid;gap:20px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr))}
+.card{position:relative;padding:24px;border-radius:var(--r);background:var(--glass);border:1px solid var(--bd);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:var(--shadow);overflow:hidden}
+.card:nth-child(odd){rotate:-.35deg}.card:nth-child(even){rotate:.3deg}.quiz,.gan-wrap,.meter{rotate:0!important}
+.card p,.card li{color:var(--muted);font-size:.96rem}
+.card .ico{font-size:1.8rem;margin-bottom:10px;display:block}
+.tag{display:inline-block;font-size:.78rem;padding:3px 10px;border-radius:2px;border:1px solid var(--c1);color:var(--c1);margin-bottom:10px}
+.tag.red{border-color:var(--c2);color:var(--c2)}
+.tag.grn{border-color:var(--c3);color:var(--c3)}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:14px 28px;border-radius:2px;font-weight:700;font-family:var(--f-mono);letter-spacing:.05em;border:1.5px solid var(--c1);color:var(--c1);background:transparent;position:relative;overflow:hidden;transition:.3s}
+.btn:hover{background:var(--c2);color:#fff;border-color:var(--c2);box-shadow:none;text-decoration:none}
+.btn.alt{border-color:var(--c2);color:var(--c2)}
+.btn.alt:hover{background:var(--c2);color:#fff;box-shadow:none}
+.btn:disabled{opacity:.4;pointer-events:none}
+.list li{padding-left:22px;position:relative;margin:7px 0}
+.list li::before{content:"–";position:absolute;left:0;color:var(--c1)}
+.callout{border-left:3px solid var(--c3);background:var(--glass);padding:14px 18px;border-radius:0 12px 12px 0;color:var(--muted);margin-top:22px;font-size:.95rem}
+.callout b{color:var(--fg)}
+code,.mono{font-family:var(--f-mono)}
+
+/* появление при скролле */
+.reveal{opacity:0;transform:translateY(40px) scale(.98);transition:opacity .8s cubic-bezier(.2,.7,.2,1),transform .8s cubic-bezier(.2,.7,.2,1)}
+.reveal.in{opacity:1;transform:none}
+.reveal.d1{transition-delay:.1s}.reveal.d2{transition-delay:.2s}.reveal.d3{transition-delay:.3s}
+
+/* 3D-наклон + подсветка за мышью */
+.tilt{transform-style:preserve-3d;transition:transform .2s ease-out,border-color .3s;will-change:transform}
+.tilt::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(260px circle at var(--mx,50%) var(--my,50%),color-mix(in srgb,var(--c1) 22%,transparent),transparent 60%);opacity:0;transition:opacity .3s}
+.tilt:hover{border-color:var(--c1)}
+.tilt:hover::after{opacity:1}
+
+/* =====================================================
+   6. HERO + ГЛИТЧ
+   ===================================================== */
+#hero{min-height:100vh;display:grid;grid-template-columns:1.15fr .85fr;align-items:center;gap:30px;padding-top:110px}
+@media (max-width:900px){#hero{grid-template-columns:1fr;text-align:center}.hero-visual{order:-1;margin:0 auto}.hero-btns{justify-content:center}}
+.hero-tag{color:var(--muted);font-size:1rem;font-weight:500;margin-bottom:14px}
+.glitch{position:relative;font-family:var(--f-gothic);font-weight:700;font-size:clamp(3.2rem,12vw,8.4rem);line-height:.95;letter-spacing:0;display:inline-block;white-space:pre-line;text-shadow:0 0 30px rgba(196,87,31,.35)}
+.glitch::before,.glitch::after{content:attr(data-text);position:absolute;inset:0;overflow:hidden}
+.glitch::before{color:var(--c2);transform:translate(3px,0);clip-path:inset(0 0 60% 0);animation:gl1 3.2s infinite steps(1)}
+.glitch::after{color:var(--c1);transform:translate(-3px,0);clip-path:inset(60% 0 0 0);animation:gl2 2.7s infinite steps(1)}
+.glitch.burst{animation:shake .12s 5}
+.glitch.burst::before{animation:gl1 .35s infinite steps(1)}
+.glitch.burst::after{animation:gl2 .3s infinite steps(1)}
+@keyframes gl1{0%{clip-path:inset(0 0 85% 0)}20%{clip-path:inset(30% 0 40% 0)}40%{clip-path:inset(70% 0 10% 0)}60%{clip-path:inset(10% 0 70% 0)}80%{clip-path:inset(45% 0 35% 0)}100%{clip-path:inset(0 0 85% 0)}}
+@keyframes gl2{0%{clip-path:inset(80% 0 0 0)}25%{clip-path:inset(10% 0 75% 0)}50%{clip-path:inset(55% 0 25% 0)}75%{clip-path:inset(25% 0 55% 0)}100%{clip-path:inset(80% 0 0 0)}}
+@keyframes shake{0%{transform:translate(0)}25%{transform:translate(-4px,2px) skewX(3deg)}50%{transform:translate(4px,-2px)}75%{transform:translate(-2px,-2px) skewX(-3deg)}100%{transform:translate(0)}}
+.sub{margin:22px 0 30px;font-family:var(--f-mono);font-size:clamp(1rem,2vw,1.35rem);min-height:2.6em;color:var(--fg)}
+.sub .caret{display:inline-block;width:10px;height:1.1em;background:var(--c1);vertical-align:-3px;margin-left:3px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.hero-btns{display:flex;gap:14px;flex-wrap:wrap}
+
+.hero-visual{position:relative;width:min(380px,80vw);aspect-ratio:1;perspective:900px}
+.orb{position:absolute;inset:8%;border-radius:50%;background:radial-gradient(circle at 35% 30%,color-mix(in srgb,var(--c1) 55%,transparent),transparent 55%),radial-gradient(circle at 70% 75%,color-mix(in srgb,var(--c2) 50%,transparent),transparent 55%),var(--bg2);box-shadow:0 0 80px color-mix(in srgb,var(--c1) 35%,transparent),inset 0 0 60px rgba(0,0,0,.6);animation:float 6s ease-in-out infinite}
+.ring{position:absolute;inset:0;border-radius:50%;border:1.5px dashed var(--c1);opacity:.6;animation:spin 18s linear infinite}
+.ring.r2{inset:-7%;border-color:var(--c2);animation-duration:26s;animation-direction:reverse;border-style:solid;opacity:.3}
+.ring.r3{inset:14%;border-color:var(--c3);animation-duration:12s;opacity:.5}
+.orb-face{position:absolute;inset:0;display:grid;place-items:center}
+.orb-face svg{width:56%;filter:drop-shadow(0 0 10px var(--c1))}
+.orb-label{position:absolute;bottom:-4%;left:50%;transform:translateX(-50%);font-family:var(--f-mono);font-size:.72rem;color:var(--c2);white-space:nowrap;border:1px solid var(--c2);padding:3px 10px;border-radius:2px;background:var(--bg)}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes float{50%{transform:translateY(-12px)}}
+.crt{width:100%;height:100%;filter:drop-shadow(0 0 40px rgba(196,87,31,.28))}
+.ghost{animation:gfloat 5s ease-in-out infinite}
+.ghost-red{animation:gfloat 5s ease-in-out infinite;opacity:.55}
+@keyframes gfloat{50%{transform:translateY(-9px)}}
+.static{animation:sflick .25s steps(2) infinite}
+@keyframes sflick{50%{opacity:.1}}
+.scroll-hint{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);font-family:var(--f-mono);font-size:.72rem;color:var(--muted);letter-spacing:.2em}
+.scroll-hint::after{content:"";display:block;width:1px;height:34px;margin:8px auto 0;background:linear-gradient(var(--c1),transparent);animation:drip 1.6s infinite}
+@keyframes drip{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+
+/* =====================================================
+   7. ТАЙМЛАЙН
+   ===================================================== */
+.tl-track{display:flex;gap:10px;overflow-x:auto;padding:10px 4px 18px;scroll-snap-type:x mandatory;position:relative}
+.tl-track::before{content:"";position:absolute;left:0;right:0;top:38px;height:2px;background:linear-gradient(90deg,var(--c1),var(--c2));opacity:.4}
+.tl-item{flex:0 0 auto;scroll-snap-align:center;display:flex;flex-direction:column;align-items:center;gap:10px;padding:0 14px;min-width:90px;position:relative}
+.tl-dot{width:22px;height:22px;border-radius:50%;background:var(--bg);border:2px solid var(--c1);transition:.3s;margin-top:6px}
+.tl-year{font-family:var(--f-head);font-weight:600;color:var(--muted);transition:.3s}
+.tl-item:hover .tl-dot,.tl-item.active .tl-dot{background:var(--c2);border-color:var(--c2);box-shadow:0 0 20px var(--c2);transform:scale(1.3)}
+.tl-item.active .tl-year{color:var(--c1)}
+#tlDetail{min-height:190px}
+#tlDetail h3{font-size:1.4rem;color:var(--c1)}
+#tlDetail .yr{font-family:var(--f-mono);color:var(--c2);font-size:.9rem}
+#tlDetail.swap{animation:swap .5s}
+@keyframes swap{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+
+/* =====================================================
+   8. СХЕМА GAN
+   ===================================================== */
+.gan-wrap{padding:20px}
+#ganSvg{width:100%;height:auto;display:block}
+#ganSvg text{fill:var(--fg);font-family:var(--f-mono);font-size:15px;text-anchor:middle}
+#ganSvg .small{font-size:11px;fill:var(--muted)}
+#ganSvg .node rect{fill:var(--bg2);stroke:var(--bd);stroke-width:1.5;transition:.4s}
+#ganSvg .node.active rect{stroke:var(--c1);stroke-width:2.5;filter:drop-shadow(0 0 8px var(--c1))}
+#ganSvg .node.bad.active rect{stroke:var(--c2);filter:drop-shadow(0 0 8px var(--c2))}
+#ganSvg .edge{stroke:var(--muted);stroke-width:2;fill:none;opacity:.3;transition:.4s}
+#ganSvg .edge.active{stroke:var(--c1);opacity:1;stroke-dasharray:8 6;animation:flow .8s linear infinite}
+#ganSvg .edge.fb.active{stroke:var(--c2)}
+@keyframes flow{to{stroke-dashoffset:-14}}
+#ganSvg marker path{fill:var(--c1)}
+.gan-ctrl{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:16px}
+.gan-dots{display:flex;gap:6px;margin-left:auto}
+.gan-dots i{width:10px;height:10px;border-radius:50%;background:var(--bd);transition:.3s}
+.gan-dots i.on{background:var(--c1);box-shadow:0 0 10px var(--c1)}
+#ganText{margin-top:14px;min-height:5.5em}
+#ganText strong{color:var(--c1);font-family:var(--f-head);display:block;margin-bottom:4px}
+
+/* =====================================================
+   9. СЛАЙДЕР «ДО / ПОСЛЕ»
+   ===================================================== */
+.cmp{position:relative;max-width:520px;margin:0 auto;aspect-ratio:1;border-radius:var(--r);overflow:hidden;border:1px solid var(--bd);box-shadow:var(--shadow);user-select:none;touch-action:pan-y}
+.cmp svg{position:absolute;inset:0;width:100%;height:100%}
+.cmp .fake-layer{clip-path:inset(0 0 0 50%)}
+.cmp-line{position:absolute;top:0;bottom:0;left:50%;width:3px;background:var(--c3);box-shadow:0 0 14px var(--c3);transform:translateX(-50%);pointer-events:none}
+.cmp-line::after{content:"⇆";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:44px;height:44px;border-radius:50%;background:var(--c3);color:#000;display:grid;place-items:center;font-size:1.2rem;font-weight:700}
+.cmp input{position:absolute;inset:0;width:100%;height:100%;opacity:0;margin:0;z-index:3}
+.cmp-lbl{position:absolute;top:12px;font-family:var(--f-mono);font-size:.72rem;padding:4px 10px;border-radius:2px;background:rgba(0,0,0,.6);z-index:2;pointer-events:none;color:#fff}
+.cmp-lbl.l{left:12px;border:1px solid var(--c1)}
+.cmp-lbl.r{right:12px;border:1px solid var(--c2)}
+.cmp:focus-within{outline:2px solid var(--c3)}
+.spot circle{fill:none;stroke:var(--c2);stroke-width:2;animation:pulse 1.6s infinite}
+@keyframes pulse{0%{r:8;opacity:1}100%{r:22;opacity:0}}
+
+/* =====================================================
+   10. СТАТИСТИКА, ИГРА, ЧЕК-ЛИСТ, ОПРОС
+   ===================================================== */
+.stat{text-align:center}
+.stat .num{font-family:var(--f-display);font-size:clamp(1.8rem,4vw,2.8rem);color:var(--c1);text-shadow:3px 3px 0 var(--c2)}
+.stat p{font-size:.85rem}
+
+.quiz{max-width:820px;margin:0 auto;padding:clamp(20px,4vw,40px)}
+.q-top{display:flex;justify-content:space-between;font-family:var(--f-mono);font-size:.85rem;color:var(--muted);margin-bottom:10px}
+.bar{height:8px;border-radius:99px;background:var(--bd);overflow:hidden;margin-bottom:24px}
+.bar>i{display:block;height:100%;width:0;background:var(--c2);transition:width .5s}
+#qText{font-family:var(--f-head);font-size:clamp(1.05rem,2.4vw,1.4rem);font-weight:600;line-height:1.4;margin-bottom:20px}
+.opts{display:grid;gap:12px}
+.opt{text-align:left;padding:16px 20px;border-radius:14px;border:1.5px solid var(--bd);background:var(--glass);transition:.25s;font-size:1rem}
+.opt:hover:not(:disabled){border-color:var(--c1);transform:translateX(6px)}
+.opt.ok{border-color:var(--c3);background:color-mix(in srgb,var(--c3) 16%,transparent)}
+.opt.no{border-color:var(--c2);background:color-mix(in srgb,var(--c2) 16%,transparent);animation:shake .3s}
+.opt:disabled{cursor:default}
+#qFeed{margin-top:18px;padding:14px 18px;border-radius:12px;border-left:3px solid var(--c1);background:var(--glass);display:none;color:var(--muted)}
+#qFeed b{color:var(--fg)}
+#qNext{margin-top:18px}
+.result{text-align:center}
+.result .score{font-family:var(--f-display);font-size:clamp(3rem,10vw,6rem);color:var(--c1);text-shadow:4px 4px 0 var(--c2)}
+.result h3{font-size:1.4rem;margin:6px 0 10px}
+
+.chk{display:flex;gap:14px;padding:14px 16px;border-radius:14px;border:1px solid var(--bd);background:var(--glass);cursor:pointer;transition:.25s;align-items:flex-start}
+.chk:hover{border-color:var(--c1)}
+.chk input{position:absolute;opacity:0}
+.chk .box{flex:0 0 26px;height:26px;border-radius:7px;border:2px solid var(--c1);display:grid;place-items:center;transition:.25s;color:transparent;font-weight:700;margin-top:2px}
+.chk input:checked+.box{background:var(--c3);border-color:var(--c3);color:#000;box-shadow:0 0 14px var(--c3)}
+.chk input:focus-visible+.box{outline:2px solid var(--c3);outline-offset:3px}
+.chk b{display:block;color:var(--fg)}
+.chk span.t{color:var(--muted);font-size:.9rem}
+.meter{margin-top:24px;padding:22px}
+#detVerdict{font-family:var(--f-mono);margin-top:8px;color:var(--muted)}
+
+.poll-row{margin:14px 0}
+.poll-row button{width:100%;text-align:left;padding:12px 16px;border-radius:12px;border:1.5px solid var(--bd);background:var(--glass);position:relative;overflow:hidden;transition:.25s}
+.poll-row button:hover:not(:disabled){border-color:var(--c1)}
+.poll-row .fill{position:absolute;left:0;top:0;bottom:0;width:0;background:color-mix(in srgb,var(--c2) 55%,transparent);transition:width 1s cubic-bezier(.2,.7,.2,1)}
+.poll-row .lbl{position:relative;display:flex;justify-content:space-between;gap:10px}
+.poll-row .pc{font-family:var(--f-mono);color:var(--c3)}
+
+/* Источники, форма, футер */
+.src li{padding:12px 0;border-bottom:1px solid var(--bd);color:var(--muted);font-size:.93rem}
+.src li b{color:var(--fg)}
+.ph{background:color-mix(in srgb,var(--c3) 18%,transparent);padding:1px 6px;border-radius:5px;color:var(--fg);font-family:var(--f-mono)}
+footer{border-top:1px solid var(--bd);padding:30px 16px;text-align:center;color:var(--muted);font-size:.85rem;font-family:var(--f-mono)}
+#toast{position:fixed;left:50%;bottom:30px;transform:translate(-50%,40px);opacity:0;z-index:9600;padding:12px 22px;border-radius:2px;border:1px solid var(--c1);background:var(--bg);color:var(--c1);font-family:var(--f-mono);transition:.4s;pointer-events:none}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* =====================================================
+   11. ОТКЛЮЧЕНИЕ АНИМАЦИЙ
+   ===================================================== */
+body.no-anim *,body.no-anim *::before,body.no-anim *::after{animation:none!important;transition:none!important}
+body.no-anim .reveal{opacity:1;transform:none}
+body.no-anim .grain{display:none}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+
+<body class="locked">
+
+<!-- ===== Скрытые SVG-определения (абстрактное лицо для слайдера) ===== -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="skin" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e8b894"/><stop offset="1" stop-color="#b9784f"/>
+    </linearGradient>
+    <linearGradient id="room" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2a1c1c"/><stop offset="1" stop-color="#0a0606"/>
+    </linearGradient>
+    <filter id="blurSeam"><feGaussianBlur stdDeviation="3"/></filter>
+    <symbol id="face" viewBox="0 0 400 400">
+      <rect width="400" height="400" fill="url(#room)"/>
+      <circle cx="80" cy="70" r="40" fill="#b9c3cc" opacity=".08"/>
+      <path d="M40 400 Q60 300 200 295 Q340 300 360 400Z" fill="#3a2f2f"/>
+      <rect x="172" y="260" width="56" height="50" fill="#b9784f"/>
+      <path d="M95 190 Q90 60 200 55 Q310 60 305 190 Q295 110 200 105 Q105 110 95 190Z" fill="#2a1a14"/>
+      <ellipse cx="200" cy="195" rx="95" ry="120" fill="url(#skin)"/>
+      <path d="M100 175 Q105 95 200 90 Q295 95 300 175 Q290 125 200 120 Q110 125 100 175Z" fill="#2a1a14"/>
+      <ellipse cx="160" cy="185" rx="20" ry="11" fill="#fff"/><ellipse cx="240" cy="185" rx="20" ry="11" fill="#fff"/>
+      <circle cx="160" cy="185" r="8" fill="#3a4a3a"/><circle cx="240" cy="185" r="8" fill="#3a4a3a"/>
+      <circle cx="160" cy="185" r="4" fill="#000"/><circle cx="240" cy="185" r="4" fill="#000"/>
+      <path d="M135 160 Q160 148 185 158M215 158 Q240 148 265 160" stroke="#2a1a14" stroke-width="6" fill="none" stroke-linecap="round"/>
+      <path d="M200 190 Q190 225 200 235 Q212 235 214 232" stroke="#8a5535" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M165 268 Q200 288 235 268" stroke="#7a2f2f" stroke-width="6" fill="none" stroke-linecap="round"/>
+    </symbol>
+  </defs>
+</svg>
+
+<canvas id="bg" aria-hidden="true"></canvas>
+<div class="forest" aria-hidden="true"><svg id="forestSvg" viewBox="0 0 1200 600" preserveAspectRatio="xMidYMax slice"></svg></div>
+<div class="grade" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+<div class="scan" aria-hidden="true"></div>
+<div class="vignette" aria-hidden="true"></div>
+<div class="vhs" aria-hidden="true"></div>
+<div id="progress" aria-hidden="true"></div>
+<canvas id="trail" aria-hidden="true"></canvas>
+<div id="cursorDot" aria-hidden="true"></div>
+<div id="cursorRing" aria-hidden="true"></div>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<!-- ===== ИНТРО ===== -->
+<div id="intro" role="dialog" aria-label="Заставка">
+  <canvas id="introCanvas"></canvas>
+  <button id="skipIntro" type="button">Пропустить</button>
+  <div id="introLog" aria-live="polite"></div>
+</div>
+
+<!-- ===== ШАПКА ===== -->
+<header class="top">
+  <div class="logo" id="logo">haunted internet</div>
+  <nav id="nav" aria-label="Основная навигация">
+    <ul>
+      <li><a href="#what">Что это</a></li>
+      <li><a href="#history">История</a></li>
+      <li><a href="#how">Как работает</a></li>
+      <li><a href="#good">Польза</a></li>
+      <li><a href="#danger">Опасности</a></li>
+      <li><a href="#game">Игра</a></li>
+      <li><a href="#detect">Признаки</a></li>
+      <li><a href="#protect">Защита</a></li>
+      <li><a href="#law">Право</a></li>
+      <li><a href="#poll">Опрос</a></li>
+      <li><a href="#about">Вывод</a></li>
+    </ul>
+  </nav>
+  <div class="ctrls">
+    <button class="ibtn" id="fxBtn" type="button" aria-pressed="true" title="Анимации вкл/выкл" aria-label="Включить или выключить анимации">FX</button>
+    <button class="ibtn" id="themeBtn" type="button" title="Тема" aria-label="Переключить тему">◐</button>
+    <button class="ibtn" id="burger" type="button" aria-label="Открыть меню" aria-expanded="false">☰</button>
+  </div>
+</header>
+
+<main>
+
+<!-- ===== 1. HERO ===== -->
+<section class="sec" id="hero" style="max-width:1240px;position:relative">
+  <div>
+    <h1 class="glitch" id="glitchTitle" data-text="haunted&#10;internet">haunted
+internet</h1>
+    <p class="sub" id="typeSub" aria-live="off"><span id="typeText"></span><span class="caret"></span></p>
+    <div class="hero-btns">
+      <a class="btn" href="#what">Начать</a>
+      <a class="btn alt" href="#game">Пройти тест</a>
+    </div>
+  </div>
+  <div class="hero-visual" id="heroVisual" aria-hidden="true">
+    <svg class="crt" viewBox="0 0 400 400">
+      <defs>
+        <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d4d8da"/><stop offset="1" stop-color="#8f979b"/></linearGradient>
+        <linearGradient id="leaf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b8602a"/><stop offset="1" stop-color="#5a2a12"/></linearGradient>
+        <filter id="noise"><feTurbulence type="fractalNoise" baseFrequency=".8" numOctaves="2"/><feColorMatrix type="saturate" values="0"/></filter>
+        <clipPath id="scrclip"><rect x="62" y="72" width="276" height="206" rx="26"/></clipPath>
+        <pattern id="lines" width="4" height="4" patternUnits="userSpaceOnUse"><rect width="4" height="1.5" fill="#000" opacity=".5"/></pattern>
+      </defs>
+      <rect x="40" y="50" width="320" height="250" rx="18" fill="#14121a" stroke="#b9c3cc" stroke-opacity=".35" stroke-width="2"/>
+      <rect x="62" y="72" width="276" height="206" rx="26" fill="url(#sky)"/>
+      <g clip-path="url(#scrclip)">
+        <g stroke="#08080c" stroke-linecap="round" fill="none">
+          <path d="M92 72V278M92 130L70 98M92 165L118 128M92 105L108 80" stroke-width="6"/>
+          <path d="M130 72V278M130 120L150 92M130 170L110 140" stroke-width="3.5"/>
+          <path d="M275 72V278M275 118L300 86M275 160L252 126M275 95L258 74" stroke-width="6"/>
+          <path d="M312 72V278M312 140L330 112" stroke-width="3.5"/>
+        </g>
+        <rect x="62" y="236" width="276" height="42" fill="url(#leaf)"/>
+        <g class="ghost-red"><g transform="translate(5 0)"><path d="M200 118C165 118 150 150 150 186C150 216 140 238 125 278L275 278C260 238 250 216 250 186C250 150 235 118 200 118Z" fill="#c4571f"/></g></g>
+        <g class="ghost">
+          <path d="M200 118C165 118 150 150 150 186C150 216 140 238 125 278L275 278C260 238 250 216 250 186C250 150 235 118 200 118Z" fill="#0d0f18"/>
+          <ellipse cx="200" cy="178" rx="20" ry="27" fill="#030305"/>
+        </g>
+        <rect class="static" x="62" y="72" width="276" height="206" filter="url(#noise)" opacity=".32"/>
+        <rect x="62" y="72" width="276" height="206" fill="url(#lines)"/>
+      </g>
+      <rect x="62" y="72" width="276" height="206" rx="26" fill="none" stroke="#000" stroke-opacity=".6" stroke-width="3"/>
+      <circle cx="330" cy="288" r="4" fill="#c4571f"/>
+      <rect x="170" y="300" width="60" height="22" fill="#14121a" stroke="#b9c3cc" stroke-opacity=".3"/>
+      <rect x="130" y="322" width="140" height="12" rx="3" fill="#14121a" stroke="#b9c3cc" stroke-opacity=".3"/>
+    </svg>
+  </div>
+</section>
+
+<!-- ===== 2. ЧТО ТАКОЕ ДИПФЕЙК ===== -->
+<section class="sec" id="what">
+  <div class="kicker reveal">Раздел 1</div>
+  <h2 class="reveal">Что такое <em>дипфейк</em>?</h2>
+  <p class="lead reveal">Слово «дипфейк» (англ. <i>deepfake</i>) составлено из двух частей: <b>deep learning</b> — «глубокое обучение» нейросетей — и <b>fake</b> — «подделка». Это фото, видео или аудио, в которых с помощью ИИ лицо, голос или движения человека заменены или полностью сгенерированы.</p>
+  <div class="grid g3">
+    <article class="card tilt reveal d1"><h3>Подмена лица</h3><p>Лицо одного человека «пересаживают» на тело другого в видео. Самый известный тип дипфейков.</p></article>
+    <article class="card tilt reveal d2"><h3>Клон голоса</h3><p>Нейросеть учится на записях речи и затем говорит чужим голосом любые фразы.</p></article>
+    <article class="card tilt reveal d3"><h3>Полностью сгенерированное</h3><p>Фото и видео людей, которых никогда не существовало, или событий, которых не было.</p></article>
+  </div>
+  <p class="callout reveal"><b>Простыми словами:</b> раньше, чтобы подделать видео, нужны были студия и месяцы работы. Теперь достаточно мощной программы, нескольких фотографий и записи голоса. Именно поэтому тема стала такой важной.</p>
+</section>
+
+<!-- ===== 3. ИСТОРИЯ ===== -->
+<section class="sec" id="history">
+  <div class="kicker reveal">Раздел 2</div>
+  <h2 class="reveal">Как всё <em>начиналось</em></h2>
+  <p class="lead reveal">Нажимай на точки таймлайна (или листай его), чтобы увидеть ключевые события.</p>
+  <div class="tl-track reveal" id="tlTrack" role="tablist" aria-label="Таймлайн"></div>
+  <article class="card" id="tlDetail" aria-live="polite"></article>
+</section>
+
+<!-- ===== 4. КАК РАБОТАЕТ ===== -->
+<section class="sec" id="how">
+  <div class="kicker reveal">Раздел 3</div>
+  <h2 class="reveal">Как это <em>работает</em></h2>
+  <p class="lead reveal">Самая известная идея — GAN, «генеративно-состязательная сеть». Представь фальшивомонетчика и эксперта-полицейского, которые тренируют друг друга. Нажимай «Дальше» и смотри, как течёт информация.</p>
+
+  <div class="card gan-wrap reveal">
+    <svg id="ganSvg" viewBox="0 0 900 340" role="img" aria-label="Схема работы GAN: генератор создаёт подделку, дискриминатор проверяет её и возвращает ошибку">
+      <defs>
+        <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z"/></marker>
+      </defs>
+      <!-- Рёбра -->
+      <path class="edge" data-s="1" d="M150 70H230" marker-end="url(#arr)"/>
+      <path class="edge" data-s="1" d="M380 70H470" marker-end="url(#arr)"/>
+      <path class="edge" data-s="2" d="M600 70H650V150H680" marker-end="url(#arr)"/>
+      <path class="edge" data-s="2" d="M600 190H680" marker-end="url(#arr)"/>
+      <path class="edge" data-s="3" d="M770 200V258" marker-end="url(#arr)"/>
+      <path class="edge fb" data-s="4" d="M680 290H305V102" marker-end="url(#arr)"/>
+      <!-- Узлы -->
+      <g class="node" data-s="1"><rect x="20" y="40" width="130" height="60" rx="12"/><text x="85" y="68">Случайный</text><text x="85" y="88">шум</text></g>
+      <g class="node bad" data-s="1 4"><rect x="230" y="40" width="150" height="60" rx="12"/><text x="305" y="68">ГЕНЕРАТОР</text><text class="small" x="305" y="88">«фальшивомонетчик»</text></g>
+      <g class="node bad" data-s="1 2"><rect x="470" y="40" width="130" height="60" rx="12"/><text x="535" y="68">ПОДДЕЛКА</text><text class="small" x="535" y="88">кадр / лицо</text></g>
+      <g class="node" data-s="2"><rect x="470" y="160" width="130" height="60" rx="12"/><text x="535" y="188">НАСТОЯЩЕЕ</text><text class="small" x="535" y="208">реальные примеры</text></g>
+      <g class="node" data-s="2 3"><rect x="680" y="130" width="180" height="70" rx="12"/><text x="770" y="160">ДИСКРИМИНАТОР</text><text class="small" x="770" y="182">«полицейский»</text></g>
+      <g class="node" data-s="3 4"><rect x="680" y="260" width="180" height="60" rx="12"/><text x="770" y="286">ВЕРДИКТ</text><text class="small" x="770" y="306">настоящее или нет?</text></g>
+      <text class="small" x="490" y="312">ошибка → обучение обоих ←</text>
+    </svg>
+    <div class="gan-ctrl">
+      <button class="btn" id="ganPrev" type="button">Назад</button>
+      <button class="btn" id="ganNext" type="button">Дальше</button>
+      <button class="btn alt" id="ganAuto" type="button">Авто</button>
+      <div class="gan-dots" id="ganDots" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+    </div>
+    <div id="ganText" aria-live="polite"></div>
+  </div>
+
+  <h3 style="margin:36px 0 14px" class="reveal">Второй способ: автоэнкодер (классическая подмена лица)</h3>
+  <div class="grid g3">
+    <article class="card tilt reveal d1"><span class="tag">шаг 1</span><h3>Общий кодировщик</h3><p>Сжимает лицо до «короткого описания»: поворот головы, выражение, освещение.</p></article>
+    <article class="card tilt reveal d2"><span class="tag red">шаг 2</span><h3>Два декодера</h3><p>Один учится собирать лицо человека А, другой — человека Б, из того же «описания».</p></article>
+    <article class="card tilt reveal d3"><span class="tag grn">шаг 3</span><h3>Подмена</h3><p>Кадр с А кодируют, а раскодируют декодером Б: мимика остаётся прежней, а лицо — чужое.</p></article>
+  </div>
+
+  <h3 style="margin:36px 0 14px" class="reveal">Сравни: настоящее vs подделка</h3>
+  <p class="lead reveal" style="margin-bottom:18px">Двигай ползунок. Слева — «настоящий» абстрактный портрет, справа — «подделка» с типичными артефактами. Это нарисованные картинки, а не фото людей.</p>
+  <div class="cmp reveal" id="cmp">
+    <!-- Настоящее -->
+    <svg viewBox="0 0 400 400" role="img" aria-label="Абстрактный портрет без искажений">
+      <use href="#face"/>
+      <circle cx="165" cy="182" r="2.5" fill="#fff"/><circle cx="245" cy="182" r="2.5" fill="#fff"/>
+    </svg>
+    <!-- Подделка -->
+    <svg class="fake-layer" id="fakeLayer" viewBox="0 0 400 400" role="img" aria-label="Тот же портрет с артефактами подделки">
+      <g style="filter:hue-rotate(-12deg) saturate(1.15)"><use href="#face"/></g>
+      <path d="M108 215 Q130 330 200 322 Q272 330 292 215" stroke="#e8b894" stroke-width="10" fill="none" opacity=".55" filter="url(#blurSeam)"/>
+      <circle cx="152" cy="182" r="2.5" fill="#fff"/><circle cx="252" cy="188" r="3.5" fill="#fff"/>
+      <rect x="168" y="262" width="64" height="14" fill="#fff" opacity=".35" filter="url(#blurSeam)"/>
+      <rect x="0" y="120" width="400" height="3" fill="#c4571f" opacity=".35"/>
+      <rect x="0" y="244" width="400" height="2" fill="#b9c3cc" opacity=".3"/>
+      <g class="spot"><circle cx="110" cy="260" r="8"/><circle cx="252" cy="188" r="8"/><circle cx="200" cy="268" r="8"/></g>
+    </svg>
+    <span class="cmp-lbl l">НАСТОЯЩЕЕ</span><span class="cmp-lbl r">ПОДДЕЛКА</span>
+    <div class="cmp-line" id="cmpLine"></div>
+    <input type="range" id="cmpRange" min="0" max="100" value="50" aria-label="Ползунок сравнения: настоящее и подделка">
+  </div>
+  <ul class="list card reveal" style="max-width:520px;margin:18px auto 0">
+    <li>Размытая «шовная» линия на границе лица и шеи.</li>
+    <li>Блики в глазах не совпадают (в одном глазу они сдвинуты).</li>
+    <li>Зубы и рот выглядят «мыльно», по кадру проходят полосы-помехи.</li>
+  </ul>
+</section>
+
+<!-- ===== 5. ПОЛЬЗА ===== -->
+<section class="sec" id="good">
+  <div class="kicker reveal">Раздел 4</div>
+  <h2 class="reveal">Где дипфейки <em>полезны</em></h2>
+  <p class="lead reveal">Сама технология не «злая». Всё зависит от того, как её используют и спрашивают ли разрешения у людей.</p>
+  <div class="grid g3">
+    <article class="card tilt reveal d1"><h3>Кино и сериалы</h3><p>Омоложение актёров, дубляж, при котором мимика совпадает с новым языком, безопасные трюки.</p></article>
+    <article class="card tilt reveal d2"><h3>Образование</h3><p>Исторические персонажи «оживают» на уроках. Важно: такие ролики должны быть честно подписаны как созданные ИИ.</p></article>
+    <article class="card tilt reveal d3"><h3>Голос и озвучка</h3><p>Синтезированный голос помогает людям, потерявшим речь из-за болезни, и ускоряет озвучку игр и видео.</p></article>
+    <article class="card tilt reveal d1"><h3>Реставрация архивов</h3><p>Нейросети улучшают старую хронику, восстанавливают потерянные кадры и звук.</p></article>
+    <article class="card tilt reveal d2"><h3>Доступность</h3><p>Аватары для перевода на жестовый язык, автоматический перевод видео с подстройкой губ под речь.</p></article>
+    <article class="card tilt reveal d3"><h3>Защита приватности</h3><p>Можно заменять лица в документальных кадрах, чтобы скрыть личность свидетеля, не теряя эмоций.</p></article>
+  </div>
+</section>
+
+<!-- ===== 6. ОПАСНОСТИ ===== -->
+<section class="sec" id="danger">
+  <div class="kicker reveal">Раздел 5</div>
+  <h2 class="reveal">Чем дипфейки <em>опасны</em></h2>
+  <p class="lead reveal">Подделку можно сделать за вечер, а опровергать её приходится днями. Вот главные риски.</p>
+  <div class="grid g3">
+    <article class="card tilt reveal d1"><span class="tag red">мошенничество</span><h3>Голос и видеозвонки</h3><p>Мошенники имитируют голос родственника или начальника и просят срочно перевести деньги.</p></article>
+    <article class="card tilt reveal d2"><span class="tag red">дезинформация</span><h3>Фейковые новости</h3><p>Поддельное «заявление» политика или «кадры» события, которого не было, разлетаются раньше опровержения.</p></article>
+    <article class="card tilt reveal d3"><span class="tag red">травля и шантаж</span><h3>Подделки о людях</h3><p>Чужое лицо вставляют в унизительные ролики и картинки. Среди пострадавших бывают и школьники. Это серьёзный вред, а не «шутка».</p></article>
+    <article class="card tilt reveal d1"><span class="tag red">политика</span><h3>Влияние на выборы</h3><p>Ролики накануне голосования могут менять мнение людей, даже если потом их признают фальшивыми.</p></article>
+    <article class="card tilt reveal d2"><span class="tag red">доверие</span><h3>«Дивиденд лжеца»</h3><p>Когда подделки повсюду, настоящее видео можно объявить фейком. Доверие к доказательствам падает.</p></article>
+    <article class="card tilt reveal d3"><span class="tag red">безопасность</span><h3>Обман проверок</h3><p>Подделка лица и голоса может пытаться обойти системы удалённой идентификации.</p></article>
+  </div>
+
+  <h3 style="margin:44px 0 16px" class="reveal">Цифры и факты</h3>
+  <div class="grid g3" id="stats">
+    <div class="card stat reveal d1"><div class="num" data-count="2014" data-fmt="plain">0</div><p>год изобретения GAN — основы многих дипфейков</p></div>
+    <div class="card stat reveal d2"><div class="num" data-count="2017" data-fmt="plain">0</div><p>год, когда появилось слово «дипфейк»</p></div>
+    <div class="card stat reveal d3"><div class="num" data-count="220000" data-suffix=" €">0</div><p>около такой суммы, по сообщениям СМИ, потеряла британская компания в 2019 году из-за поддельного голоса «директора»</p></div>
+    <div class="card stat reveal d1"><div class="num" data-count="25" data-prefix="≈ " data-suffix=" млн $">0</div><p>сумма, переведённая в 2024 году после видеозвонка с «коллегами»-дипфейками (случай в Гонконге)</p></div>
+  </div>
+  <p class="callout reveal"><b>Важно:</b> цифры взяты из публичных сообщений СМИ и компаний. Точные данные о числе дипфейков в интернете быстро меняются и сильно зависят от методики подсчёта, поэтому в проекте они намеренно не приводятся.</p>
+</section>
+
+<!-- ===== 7. ИГРА ===== -->
+<section class="sec" id="game">
+  <div class="kicker reveal">Раздел 6</div>
+  <h2 class="reveal">Игра: <em>найди дипфейк</em></h2>
+  <p class="lead reveal">10 ситуаций. В каждой выбери верное решение. После ответа будет объяснение.</p>
+  <div class="card quiz reveal" id="quiz">
+    <div id="quizBody">
+      <div class="q-top"><span id="qNum">Вопрос 1 / 10</span><span id="qScore">Очки: 0</span></div>
+      <div class="bar"><i id="qBar"></i></div>
+      <div id="qText"></div>
+      <div class="opts" id="qOpts"></div>
+      <div id="qFeed" aria-live="polite"></div>
+      <button class="btn" id="qNext" type="button" style="display:none">Дальше</button>
+    </div>
+    <div class="result" id="quizResult" style="display:none"></div>
+  </div>
+</section>
+
+<!-- ===== 8. ПРИЗНАКИ ===== -->
+<section class="sec" id="detect">
+  <div class="kicker reveal">Раздел 7</div>
+  <h2 class="reveal">Как <em>распознать</em> дипфейк</h2>
+  <p class="lead reveal">Отмечай галочки, когда замечаешь признак в подозрительном ролике. Но помни: ни один признак не даёт 100% гарантии.</p>
+  <div class="grid g2" id="checklist"></div>
+  <div class="card meter reveal">
+    <div class="q-top"><span>Подозрительность ролика</span><span id="detPct">0%</span></div>
+    <div class="bar" style="margin-bottom:0"><i id="detBar"></i></div>
+    <p id="detVerdict">Отметь признаки, которые заметил(а).</p>
+  </div>
+  <p class="callout reveal"><b>Главное правило:</b> даже если признаков нет, это не значит, что видео настоящее. Современные подделки бывают очень качественными, поэтому всегда проверяй источник.</p>
+</section>
+
+<!-- ===== 9. ЗАЩИТА ===== -->
+<section class="sec" id="protect">
+  <div class="kicker reveal">Раздел 8</div>
+  <h2 class="reveal">Как <em>защититься</em> и что делать</h2>
+  <div class="grid g3">
+    <article class="card tilt reveal d1">
+      <span class="tag grn">гигиена</span><h3>Правила цифровой гигиены</h3>
+      <ul class="list">
+        <li>Закрой профили в соцсетях, не выкладывай лишних фото в высоком качестве.</li>
+        <li>Включи двухфакторную аутентификацию.</li>
+        <li>Договорись с семьёй о <b>кодовом слове</b> на случай «срочных» просьб о деньгах.</li>
+        <li>Не передавай коды из СМС и данные карт никому.</li>
+      </ul>
+    </article>
+    <article class="card tilt reveal d2">
+      <span class="tag">проверка</span><h3>Метод «СТОП-4»</h3>
+      <ul class="list">
+        <li><b>Стоп.</b> Не пересылай, пока не проверил. Эмоции — главный инструмент фейка.</li>
+        <li><b>Источник.</b> Кто это опубликовал? Есть ли первоисточник?</li>
+        <li><b>Другие СМИ.</b> Пишут ли об этом надёжные издания?</li>
+        <li><b>Поиск по картинке.</b> Найди кадр через обратный поиск изображений.</li>
+      </ul>
+    </article>
+    <article class="card tilt reveal d3">
+      <span class="tag red">если ты жертва</span><h3>Что делать</h3>
+      <ul class="list">
+        <li>Не вини себя: ответственность на том, кто сделал подделку.</li>
+        <li>Сохрани доказательства: скриншоты, ссылки, даты. Ничего не удаляй.</li>
+        <li>Расскажи родителям или учителю. Не оставайся с этим один.</li>
+        <li>Пожалуйся на платформе и обратись в полицию (112). Детский телефон доверия в России: <b>8-800-2000-122</b>.</li>
+      </ul>
+    </article>
+  </div>
+</section>
+
+<!-- ===== 10. ПРАВО ===== -->
+<section class="sec" id="law">
+  <div class="kicker reveal">Раздел 9</div>
+  <h2 class="reveal">Право и <em>этика</em></h2>
+  <p class="lead reveal">Законы только догоняют технологии, поэтому в разных странах подходы отличаются.</p>
+  <div class="grid g2">
+    <article class="card tilt reveal d1"><span class="tag">Россия</span><h3>Отдельного «закона о дипфейках» нет*</h3><p>Применяются общие нормы: охрана изображения гражданина (ст. 152.1 Гражданского кодекса), ответственность за клевету (ст. 128.1 УК), мошенничество (ст. 159 УК), нарушение неприкосновенности частной жизни (ст. 137 УК). Законопроекты о регулировании ИИ-контента обсуждаются.</p></article>
+    <article class="card tilt reveal d2"><span class="tag">Евросоюз</span><h3>AI Act</h3><p>Регламент ЕС об искусственном интеллекте вступил в силу в 2024 году. Он вводит требования прозрачности: ИИ-контент, похожий на реальный, должен быть помечен. Эти требования применяются поэтапно.</p></article>
+    <article class="card tilt reveal d3"><span class="tag">США</span><h3>TAKE IT DOWN Act (2025)</h3><p>Федеральный закон, по которому платформы обязаны удалять по запросу интимные изображения без согласия человека, включая сделанные с помощью ИИ. Кроме того, есть законы отдельных штатов.</p></article>
+    <article class="card tilt reveal d1"><span class="tag">Китай</span><h3>Правила «глубокого синтеза»</h3><p>С 2023 года действуют правила для сервисов синтеза контента: требуется маркировка сгенерированного и получение согласия людей, чьё лицо или голос используются.</p></article>
+  </div>
+  <div class="card reveal" style="margin-top:20px">
+    <h3>Этика: три простых правила</h3>
+    <ul class="list">
+      <li><b>Согласие.</b> Нельзя использовать чужое лицо и голос без разрешения.</li>
+      <li><b>Прозрачность.</b> ИИ-контент нужно честно помечать.</li>
+      <li><b>Ответственность.</b> «Это же шутка» не оправдывает вред, причинённый человеку.</li>
+    </ul>
+  </div>
+  <p class="callout reveal">* Информация актуальна на момент подготовки проекта. Законы быстро меняются, поэтому перед защитой проверь актуальные тексты на официальных сайтах (pravo.gov.ru, eur-lex.europa.eu, congress.gov). Этот раздел не является юридической консультацией.</p>
+</section>
+
+<!-- ===== 11. ОПРОС ===== -->
+<section class="sec" id="poll">
+  <div class="kicker reveal">Раздел 10</div>
+  <h2 class="reveal">Мини-<em>опрос</em></h2>
+  <div class="card reveal" style="max-width:720px">
+    <h3 id="pollQ">Сможешь ли ты отличить дипфейк от настоящего видео?</h3>
+    <div id="pollBox"></div>
+    <p class="mono" style="font-size:.8rem;color:var(--muted);margin-top:10px" id="pollInfo"></p>
+    <button class="btn alt" id="pollReset" type="button" style="margin-top:12px;padding:8px 18px;font-size:.8rem">Сбросить результаты</button>
+    <p style="font-size:.8rem;color:var(--muted);margin-top:10px">Результаты хранятся только в твоём браузере (localStorage) и не отправляются на сервер.</p>
+  </div>
+</section>
+
+<!-- ===== ВЫВОД ===== -->
+<section class="sec" id="about">
+  <div class="kicker reveal">Раздел 11</div>
+  <h2 class="reveal"><em>Вывод</em> проекта</h2>
+  <article class="card reveal d1" style="max-width:820px">
+    <ul class="list">
+      <li>Дипфейки — результат развития нейросетей (GAN, автоэнкодеры). Сама технология нейтральна.</li>
+      <li>Пользы много: кино, образование, доступность, реставрация.</li>
+      <li>Риски серьёзны: мошенничество, дезинформация, травля, потеря доверия.</li>
+      <li>Лучшая защита — критическое мышление, проверка источников и цифровая гигиена.</li>
+    </ul>
+  </article>
+</section>
+</main>
+
+<script>
+/* =====================================================
+   0. БАЗА: утилиты и общее состояние
+   ===================================================== */
+(() => {
+'use strict';
+const $  = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const body = document.body;
+const reduceMQ = matchMedia('(prefers-reduced-motion: reduce)');
+const state = { fx: !reduceMQ.matches, matrix: false, mouse: { x: -999, y: -999 } };
+
+// безопасная работа с localStorage
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+};
+
+// всплывающее уведомление
+let toastT;
+function toast(msg) {
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+/* =====================================================
+   1. ТЕМА И ПЕРЕКЛЮЧАТЕЛЬ АНИМАЦИЙ
+   ===================================================== */
+const root = document.documentElement;
+root.dataset.theme = store.get('df_theme', 'dark');
+$('#themeBtn').addEventListener('click', () => {
+  const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+  root.dataset.theme = next; store.set('df_theme', next);
+  readPalette();
+});
+
+function setFx(on) {
+  state.fx = on;
+  body.classList.toggle('no-anim', !on);
+  $('#fxBtn').setAttribute('aria-pressed', String(on));
+}
+$('#fxBtn').addEventListener('click', () => { setFx(!state.fx); toast(state.fx ? 'Анимации включены' : 'Анимации выключены'); });
+setFx(state.fx);
+
+/* =====================================================
+   2. ИНТРО: «СКАНИРОВАНИЕ ЛИЦА»
+   ===================================================== */
+function runIntro() {
+  const el = $('#intro'), cv = $('#introCanvas'), ctx = cv.getContext('2d'), log = $('#introLog');
+  let finished = false, raf;
+
+  function finish() {
+    if (finished) return; finished = true;
+    cancelAnimationFrame(raf);
+    el.classList.add('done'); body.classList.remove('locked');
+    setTimeout(() => el.remove(), 900);
+  }
+  $('#skipIntro').addEventListener('click', finish);
+  addEventListener('keydown', e => { if (e.key === 'Escape') finish(); });
+
+  if (!state.fx) { el.remove(); body.classList.remove('locked'); finished = true; return; }
+
+  let W, H, pts = [], dpr = Math.min(devicePixelRatio || 1, 2);
+  function build() {
+    W = innerWidth; H = innerHeight;
+    cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const cx = W / 2, cy = H / 2 - H * 0.04, rx = Math.min(W, H) * 0.2, ry = rx * 1.3, step = Math.max(9, rx / 11);
+    pts = [];
+    for (let y = cy - ry; y <= cy + ry; y += step) {
+      for (let x = cx - rx; x <= cx + rx; x += step) {
+        const nx = (x - cx) / rx, ny = (y - cy) / ry;
+        if (nx * nx + ny * ny <= 1) pts.push({ x, y, j: Math.random() });
+      }
+    }
+    pts.cx = cx; pts.cy = cy; pts.rx = rx; pts.ry = ry;
+  }
+  build(); addEventListener('resize', build);
+
+  const msgs = [
+    { at: 0.02, t: 'ИДЕНТИФИКАЦИЯ...' },
+    { at: 0.35, t: 'СРАВНЕНИЕ С БАЗОЙ ЛИЦ...' },
+    { at: 0.62, t: 'ЛИЦО НЕ НАЙДЕНО', err: true },
+    { at: 0.82, t: 'ЭТО ДИПФЕЙК', err: true }
+  ];
+  let mi = 0;
+  const DUR = 4600, t0 = performance.now();
+
+  function frame(now) {
+    const t = Math.min((now - t0) / DUR, 1);
+    ctx.clearRect(0, 0, W, H);
+    const { cx, cy, rx, ry } = pts;
+    const sweep = (t * 2) % 1, tri = sweep < .5 ? sweep * 2 : 2 - sweep * 2;
+    const scanY = cy - ry + tri * ry * 2;
+    const bad = t > 0.62;
+    const col = bad ? '196,87,31' : '185,195,204';
+
+    pts.forEach(p => {
+      const d = Math.abs(p.y - scanY);
+      const glow = Math.max(0, 1 - d / 50);
+      const jit = bad ? (Math.random() - .5) * 6 * p.j : 0;
+      ctx.fillStyle = `rgba(${col},${0.18 + glow * 0.82})`;
+      ctx.beginPath(); ctx.arc(p.x + jit, p.y, 1.6 + glow * 2, 0, 6.283); ctx.fill();
+    });
+    // глаза и рот (контуры)
+    ctx.strokeStyle = `rgba(${col},.8)`; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.ellipse(cx - rx * .38, cy - ry * .12, rx * .16, rx * .08, 0, 0, 6.283);
+    ctx.ellipse(cx + rx * .38, cy - ry * .12, rx * .16, rx * .08, 0, 0, 6.283); ctx.stroke();
+    ctx.beginPath(); ctx.arc(cx, cy + ry * .35, rx * .3, 0.15 * Math.PI, 0.85 * Math.PI); ctx.stroke();
+    // рамка-«прицел»
+    const b = rx * 1.25, L = 26; ctx.strokeStyle = `rgba(${col},.9)`; ctx.lineWidth = 2;
+    [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([sx, sy]) => {
+      const x = cx + sx * b, y = cy + sy * ry * 1.15;
+      ctx.beginPath(); ctx.moveTo(x, y - sy * L); ctx.lineTo(x, y); ctx.lineTo(x - sx * L, y); ctx.stroke();
+    });
+    // линия сканера
+    const g = ctx.createLinearGradient(cx - rx * 1.4, 0, cx + rx * 1.4, 0);
+    g.addColorStop(0, 'transparent'); g.addColorStop(.5, `rgba(${col},1)`); g.addColorStop(1, 'transparent');
+    ctx.fillStyle = g; ctx.fillRect(cx - rx * 1.4, scanY - 1.5, rx * 2.8, 3);
+
+    while (mi < msgs.length && t >= msgs[mi].at) {
+      const p = document.createElement('p'); p.textContent = msgs[mi].t;
+      if (msgs[mi].err) p.className = 'err'; log.appendChild(p); mi++;
+    }
+    if (t >= 1) { setTimeout(finish, 700); return; }
+    raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+}
+
+/* =====================================================
+   3. ФОН: частицы + «цифровой дождь» (режим матрицы)
+   ===================================================== */
+const pal = { c1: '#b9c3cc', c2: '#c4571f' };
+function readPalette() {
+  const cs = getComputedStyle(body);
+  pal.c1 = cs.getPropertyValue('--c1').trim() || pal.c1;
+  pal.c2 = cs.getPropertyValue('--c2').trim() || pal.c2;
+}
+readPalette();
+
+(function background() {
+  const cv = $('#bg'), ctx = cv.getContext('2d');
+  let W, H, dpr, parts = [], drops = [], fs = 16;
+  const glyphs = '†✝01ДИПФЕЙКhauntedinternet'.split('');
+
+  function resize() {
+    dpr = Math.min(devicePixelRatio || 1, 2);
+    W = innerWidth; H = innerHeight;
+    cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const n = Math.max(30, Math.min(90, Math.round(W * H / 18000)));
+    parts = Array.from({ length: n }, () => ({ x: Math.random() * W, y: Math.random() * H, vx: 0, vy: Math.random() * .6 + .3, wind: (Math.random() - .3) * .5, fall: Math.random() * .6 + .3, s: Math.random() * 4 + 3, r: Math.random() * 6, vr: (Math.random() - .5) * .04, ph: Math.random() * 6, col: ['#c4571f', '#a8430f', '#b8863a', '#7a3a14', '#8a8f6a'][(Math.random() * 5) | 0] }));
+    drops = Array.from({ length: Math.ceil(W / fs) }, () => Math.random() * -50);
+  }
+  resize(); addEventListener('resize', resize);
+
+  function frame() {
+    requestAnimationFrame(frame);
+    if (!state.fx || document.hidden) return;
+    if (state.matrix) {
+      ctx.fillStyle = 'rgba(0,0,0,.09)'; ctx.fillRect(0, 0, W, H);
+      ctx.font = fs + 'px "JetBrains Mono",monospace';
+      drops.forEach((y, i) => {
+        ctx.fillStyle = Math.random() > .96 ? '#fff' : '#ff2a2a';
+        ctx.fillText(glyphs[(Math.random() * glyphs.length) | 0], i * fs, y * fs);
+        drops[i] = (y * fs > H && Math.random() > .975) ? 0 : y + 1;
+      });
+      return;
+    }
+    ctx.clearRect(0, 0, W, H);
+    const m = state.mouse;
+    for (const p of parts) {
+      // «ветер» от курсора сдувает листья
+      const dx = p.x - m.x, dy = p.y - m.y, d2 = dx * dx + dy * dy;
+      if (d2 < 26000) { const f = 1 - d2 / 26000, d = Math.sqrt(d2 + 1); p.vx += dx / d * f * .25; p.vy += dy / d * f * .25; }
+      p.vx += (p.wind - p.vx) * .01; p.vy += (p.fall - p.vy) * .01;
+      p.x += p.vx + Math.sin(p.y / 60 + p.ph) * .4; p.y += p.vy; p.r += p.vr;
+      if (p.y > H + 20) { p.y = -20; p.x = Math.random() * W; }
+      if (p.x < -30) p.x = W + 20;
+      if (p.x > W + 30) p.x = -20;
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r);
+      ctx.globalAlpha = .6; ctx.fillStyle = p.col;
+      ctx.beginPath(); ctx.ellipse(0, 0, p.s, p.s * .5, 0, 0, 6.283); ctx.fill(); ctx.restore();
+    }
+    ctx.globalAlpha = 1;
+  }
+  frame();
+  // сброс холста при смене режима
+  window.__resetBg = () => { ctx.clearRect(0, 0, W, H); drops = drops.map(() => Math.random() * -50); };
+})();
+
+/* =====================================================
+   4. КАСТОМНЫЙ КУРСОР + НЕОНОВЫЙ СЛЕД
+   ===================================================== */
+(function cursor() {
+  addEventListener('pointermove', e => { state.mouse.x = e.clientX; state.mouse.y = e.clientY; }, { passive: true });
+  if (!matchMedia('(pointer:fine)').matches) return;
+  body.classList.add('has-cursor');
+  const dot = $('#cursorDot'), ring = $('#cursorRing'), cv = $('#trail'), ctx = cv.getContext('2d');
+  let W, H, rx = 0, ry = 0, trail = [];
+  function resize() { W = cv.width = innerWidth; H = cv.height = innerHeight; }
+  resize(); addEventListener('resize', resize);
+
+  addEventListener('pointermove', e => {
+    body.classList.add('cursor-on');
+    dot.style.transform = `translate(${e.clientX}px,${e.clientY}px)`;
+    trail.push({ x: e.clientX, y: e.clientY, t: performance.now() });
+    if (trail.length > 40) trail.shift();
+  }, { passive: true });
+  document.addEventListener('mouseleave', () => body.classList.remove('cursor-on'));
+  document.addEventListener('pointerover', e => {
+    ring.classList.toggle('hover', !!e.target.closest('a,button,input,.opt,.chk,.tl-item,.tilt'));
+  });
+
+  (function loop() {
+    requestAnimationFrame(loop);
+    const m = state.mouse;
+    rx += (m.x - rx) * .18; ry += (m.y - ry) * .18;
+    ring.style.transform = `translate(${rx}px,${ry}px)`;
+    if (!state.fx) { ctx.clearRect(0, 0, W, H); return; }
+    ctx.clearRect(0, 0, W, H);
+    const now = performance.now();
+    trail = trail.filter(p => now - p.t < 450);
+    ctx.lineCap = 'round';
+    for (let i = 1; i < trail.length; i++) {
+      const a = trail[i - 1], b = trail[i], life = 1 - (now - b.t) / 450;
+      ctx.strokeStyle = pal.c2; ctx.globalAlpha = Math.max(life, 0) * .8;
+      ctx.lineWidth = 1 + life * 5; ctx.shadowColor = pal.c2; ctx.shadowBlur = 12;
+      ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+    }
+    ctx.globalAlpha = 1; ctx.shadowBlur = 0;
+  })();
+})();
+
+/* =====================================================
+   5. СКРОЛЛ: прогресс, навигация, появление, параллакс
+   ===================================================== */
+(function scrollFx() {
+  const bar = $('#progress'), vis = $('#heroVisual');
+  let ticking = false;
+  function onScroll() {
+    const h = document.documentElement;
+    bar.style.width = (h.scrollTop / (h.scrollHeight - h.clientHeight || 1) * 100) + '%';
+    if (state.fx && vis) vis.style.transform = `translateY(${Math.min(scrollY, 800) * .18}px)`;
+    ticking = false;
+  }
+  addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, { passive: true });
+  onScroll();
+
+  // появление блоков
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: .12 });
+  $$('.reveal').forEach(el => io.observe(el));
+
+  // подсветка активного пункта меню
+  const links = $$('#nav a');
+  const secs = links.map(a => $(a.getAttribute('href'))).filter(Boolean);
+  const so = new IntersectionObserver(es => es.forEach(e => {
+    if (e.isIntersecting) links.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + e.target.id));
+  }), { rootMargin: '-45% 0px -50% 0px' });
+  secs.forEach(s => so.observe(s));
+
+  // мобильное меню
+  const burger = $('#burger'), nav = $('#nav');
+  burger.addEventListener('click', () => { const o = nav.classList.toggle('open'); burger.setAttribute('aria-expanded', String(o)); });
+  links.forEach(a => a.addEventListener('click', () => { nav.classList.remove('open'); burger.setAttribute('aria-expanded', 'false'); }));
+})();
+
+/* =====================================================
+   6. TILT-КАРТОЧКИ С ПОДСВЕТКОЙ
+   ===================================================== */
+(function tilt() {
+  $$('.tilt').forEach(el => {
+    el.addEventListener('pointermove', e => {
+      const r = el.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+      el.style.setProperty('--mx', x + 'px'); el.style.setProperty('--my', y + 'px');
+      if (!state.fx || e.pointerType === 'touch') return;
+      const rx = ((y / r.height) - .5) * -10, ry = ((x / r.width) - .5) * 10;
+      el.style.transform = `perspective(800px) rotateX(${rx}deg) rotateY(${ry}deg) translateZ(6px)`;
+    });
+    el.addEventListener('pointerleave', () => { el.style.transform = ''; });
+  });
+})();
+
+/* =====================================================
+   7. HERO: глитч-всплески и «печатающийся» текст
+   ===================================================== */
+(function heroText() {
+  const title = $('#glitchTitle');
+  setInterval(() => {
+    if (!state.fx) return;
+    title.classList.add('burst'); setTimeout(() => title.classList.remove('burst'), 600);
+  }, 4200);
+
+  const phrases = [
+    'добро пожаловать в сеть, где лица врут.',
+    'дипфейки: подделки, которые выглядят как правда.',
+    'как они работают, чем опасны и как не попасться.'
+  ];
+  const out = $('#typeText'); let pi = 0, ci = 0, del = false;
+  function tick() {
+    if (!state.fx) { out.textContent = phrases[0]; setTimeout(tick, 1500); return; }
+    const ph = phrases[pi];
+    out.textContent = ph.slice(0, ci);
+    if (!del && ci < ph.length) { ci++; return setTimeout(tick, 45); }
+    if (!del) { del = true; return setTimeout(tick, 1800); }
+    if (ci > 0) { ci--; return setTimeout(tick, 22); }
+    del = false; pi = (pi + 1) % phrases.length; setTimeout(tick, 300);
+  }
+  tick();
+})();
+
+/* =====================================================
+   8. ТАЙМЛАЙН
+   ===================================================== */
+(function timeline() {
+  const ev = [
+    { y: '1997', t: 'Video Rewrite', d: 'Исследователи Кристоф Бреглер, Мишель Ковелл и Малкольм Слэни показывают программу, которая меняет движения губ человека на видео под новую звуковую дорожку. Это один из первых шагов к автоматической подделке видео.' },
+    { y: '2014', t: 'Рождение GAN', d: 'Ян Гудфеллоу и коллеги предлагают генеративно-состязательные сети: две нейросети «соревнуются», и одна учится создавать очень правдоподобные изображения.' },
+    { y: '2017', t: 'Появление слова «deepfake»', d: 'Пользователь соцсети Reddit с ником deepfakes публикует ролики с подменой лиц, сделанные нейросетями. Так появляется термин «дипфейк», а вместе с ним и первые открытые инструменты.' },
+    { y: '2018', t: 'Инструменты для всех', d: 'Программы для подмены лиц (например, DeepFaceLab) становятся доступны обычным пользователям. Выходит демонстрационный ролик с поддельным Бараком Обамой — его создали, чтобы предупредить об опасности.' },
+    { y: '2019', t: 'Первые громкие аферы', d: 'По сообщениям СМИ, мошенники с помощью синтезированного голоса «руководителя» убедили сотрудника британской компании перевести около 220 тысяч евро. Крупные компании запускают конкурсы по поиску дипфейков.' },
+    { y: '2022', t: 'Подделки в новостях и ИИ для всех', d: 'В марте распространяется поддельное видеообращение президента Украины, которое быстро опровергли. В августе выходит открытая модель Stable Diffusion, и генерация изображений становится массовой.' },
+    { y: '2024', t: 'Видеозвонок на миллионы', d: 'Полиция Гонконга сообщает, что сотрудник международной компании перевёл около 25 млн долларов после видеозвонка, где «коллеги» оказались дипфейками. В августе вступает в силу регламент ЕС об ИИ (AI Act).' },
+    { y: '2025', t: 'Законы догоняют технологии', d: 'В США подписан закон TAKE IT DOWN Act: платформы обязаны удалять по запросу интимные изображения без согласия человека, в том числе созданные ИИ.' }
+  ];
+  const track = $('#tlTrack'), det = $('#tlDetail');
+  function show(i) {
+    $$('.tl-item', track).forEach((b, k) => { b.classList.toggle('active', k === i); b.setAttribute('aria-selected', String(k === i)); });
+    det.innerHTML = `<div class="yr">${ev[i].y}</div><h3>${ev[i].t}</h3><p>${ev[i].d}</p>`;
+    det.classList.remove('swap'); void det.offsetWidth; det.classList.add('swap');
+  }
+  ev.forEach((e, i) => {
+    const b = document.createElement('button');
+    b.className = 'tl-item'; b.type = 'button'; b.setAttribute('role', 'tab');
+    b.innerHTML = `<span class="tl-dot"></span><span class="tl-year">${e.y}</span>`;
+    b.addEventListener('click', () => show(i));
+    track.appendChild(b);
+  });
+  show(0);
+})();
+
+/* =====================================================
+   9. СХЕМА GAN (пошагово)
+   ===================================================== */
+(function gan() {
+  const steps = [
+    { t: '1. Генератор создаёт подделку', d: 'Он получает случайный «шум» и превращает его в картинку или кадр. Сначала получается ерунда, но он учится.' },
+    { t: '2. Дискриминатор получает примеры', d: 'Ему показывают вперемешку настоящие данные и подделку от генератора. Задача: понять, где что.' },
+    { t: '3. Вердикт', d: 'Дискриминатор выносит решение «настоящее» или «подделка». Если он угадал, генератор проиграл раунд.' },
+    { t: '4. Обучение обоих', d: 'Ошибка возвращается в обе сети: генератор учится обманывать лучше, дискриминатор учится ловить лучше. После тысяч кругов подделку почти не отличить.' }
+  ];
+  let cur = 0, timer = null;
+  const els = $$('#ganSvg [data-s]'), dots = $$('#ganDots i'), txt = $('#ganText');
+  function show(i) {
+    cur = (i + steps.length) % steps.length;
+    els.forEach(el => el.classList.toggle('active', el.dataset.s.split(' ').includes(String(cur + 1))));
+    dots.forEach((d, k) => d.classList.toggle('on', k === cur));
+    txt.innerHTML = `<strong>${steps[cur].t}</strong><span style="color:var(--muted)">${steps[cur].d}</span>`;
+  }
+  $('#ganNext').addEventListener('click', () => show(cur + 1));
+  $('#ganPrev').addEventListener('click', () => show(cur - 1));
+  $('#ganAuto').addEventListener('click', e => {
+    if (timer) { clearInterval(timer); timer = null; e.currentTarget.textContent = 'Авто'; return; }
+    e.currentTarget.textContent = 'Стоп';
+    timer = setInterval(() => show(cur + 1), 2600);
+  });
+  show(0);
+})();
+
+/* =====================================================
+   10. СЛАЙДЕР «НАСТОЯЩЕЕ / ПОДДЕЛКА»
+   ===================================================== */
+(function compare() {
+  const r = $('#cmpRange'), fake = $('#fakeLayer'), line = $('#cmpLine');
+  function upd() { fake.style.clipPath = `inset(0 0 0 ${r.value}%)`; line.style.left = r.value + '%'; }
+  r.addEventListener('input', upd); upd();
+})();
+
+/* =====================================================
+   11. СЧЁТЧИКИ СТАТИСТИКИ
+   ===================================================== */
+(function counters() {
+  const els = $$('[data-count]');
+  const io = new IntersectionObserver(es => es.forEach(e => {
+    if (!e.isIntersecting) return; io.unobserve(e.target);
+    const el = e.target, to = +el.dataset.count, pre = el.dataset.prefix || '', suf = el.dataset.suffix || '', plain = el.dataset.fmt === 'plain';
+    const fmt = v => pre + (plain ? String(Math.round(v)) : Math.round(v).toLocaleString('ru-RU')) + suf;
+    if (!state.fx) { el.textContent = fmt(to); return; }
+    const t0 = performance.now(), D = 1800;
+    (function step(now) {
+      const k = Math.min((now - t0) / D, 1), ease = 1 - Math.pow(1 - k, 3);
+      el.textContent = fmt(to * ease);
+      if (k < 1) requestAnimationFrame(step);
+    })(t0);
+  }), { threshold: .5 });
+  els.forEach(el => io.observe(el));
+})();
+
+/* =====================================================
+   12. ИГРА «НАЙДИ ДИПФЕЙК»
+   ===================================================== */
+(function quiz() {
+  const Q = [
+    { q: 'В мессенджере пришло голосовое «от мамы» с незнакомого номера: «Срочно переведи деньги!» Что делать?', o: ['Быстро перевести, мама же просит', 'Позвонить маме по её известному номеру и всё проверить', 'Ответить в чат и спросить, что случилось'], a: 1, e: 'Голос легко подделать. Всегда проверяй через другой, известный тебе канал связи. Срочность и давление — признак мошенничества.' },
+    { q: 'Ты увидел видео, где известный политик делает шокирующее заявление, но ни в одном надёжном СМИ об этом нет. Первый шаг?', o: ['Сразу репостнуть, пусть все знают', 'Поискать подтверждение в надёжных источниках', 'Решить по качеству картинки'], a: 1, e: 'Сначала проверь источник и поищи подтверждение. Громкое заявление без подтверждения от других изданий — повод для сомнений.' },
+    { q: '«Если видео в высоком качестве, оно точно настоящее.» Верно?', o: ['Верно', 'Неверно'], a: 1, e: 'Качество не гарантирует подлинность. Современные дипфейки могут быть очень чёткими. Проверяй источник и контекст.' },
+    { q: 'Дипфейком может быть только видео. Верно?', o: ['Верно', 'Неверно'], a: 1, e: 'Дипфейками бывают видео, фото и аудио (клон голоса), а также полностью сгенерированные изображения.' },
+    { q: 'Что делает «дискриминатор» в GAN?', o: ['Создаёт подделку', 'Отличает настоящее от подделки', 'Сжимает видео для загрузки'], a: 1, e: 'Дискриминатор — «полицейский»: он оценивает, настоящее перед ним или подделка. Генератор учится его обманывать.' },
+    { q: 'Какой признак чаще всего может указывать на подделку?', o: ['Рассинхрон губ со звуком, размытые края лица, странные блики', 'Видео снято на телефон', 'В кадре много людей'], a: 0, e: 'Артефакты вокруг лица, рассинхрон и неестественные блики — типичные признаки. Но их отсутствие ничего не доказывает.' },
+    { q: '«Современные программы-детекторы дипфейков находят подделки со 100% точностью.» Верно?', o: ['Верно', 'Неверно'], a: 1, e: 'Ни один детектор не идеален: подделки и способы их поиска развиваются наперегонки. Нужна проверка источника.' },
+    { q: 'Ты узнал, что в школьном чате ходит поддельная унизительная картинка с лицом одноклассника. Что делать?', o: ['Переслать друзьям — смешно же', 'Не распространять, сохранить доказательства и сообщить взрослым; поддержать пострадавшего', 'Просто проигнорировать'], a: 1, e: 'Пересылка делает тебя участником травли. Правильно: не распространять, сохранить скриншоты, сообщить учителю или родителям и поддержать человека.' },
+    { q: 'Дипфейк-технологии используют и во благо. Верно?', o: ['Верно', 'Неверно'], a: 0, e: 'Да: кино и дубляж, образование, восстановление голоса людям, потерявшим речь, реставрация архивов. Главное — согласие людей и честная маркировка.' },
+    { q: 'Какая простая защита помогает против «срочных» просьб денег от якобы родственников?', o: ['Кодовое слово, известное только семье', 'Верить, если голос похож', 'Отвечать как можно быстрее'], a: 0, e: 'Договорённость о кодовом слове и проверка через другой канал связи работают даже против идеального клона голоса.' }
+  ];
+  let i = 0, score = 0, locked = false;
+  const $q = $('#qText'), $o = $('#qOpts'), $f = $('#qFeed'), $n = $('#qNext');
+
+  function render() {
+    locked = false;
+    const q = Q[i];
+    $('#qNum').textContent = `Вопрос ${i + 1} / ${Q.length}`;
+    $('#qScore').textContent = `Очки: ${score}`;
+    $('#qBar').style.width = (i / Q.length * 100) + '%';
+    $q.textContent = q.q; $o.innerHTML = ''; $f.style.display = 'none'; $n.style.display = 'none';
+    q.o.forEach((t, k) => {
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'opt'; b.textContent = t;
+      b.addEventListener('click', () => answer(k, b)); $o.appendChild(b);
+    });
+  }
+  function answer(k, btn) {
+    if (locked) return; locked = true;
+    const q = Q[i], ok = k === q.a;
+    if (ok) score++;
+    $$('.opt', $o).forEach((b, j) => { b.disabled = true; if (j === q.a) b.classList.add('ok'); });
+    if (!ok) btn.classList.add('no');
+    $('#qScore').textContent = `Очки: ${score}`;
+    $f.innerHTML = `<b>${ok ? '✔ Верно!' : '✘ Не совсем.'}</b> ${q.e}`;
+    $f.style.display = 'block';
+    $n.textContent = i === Q.length - 1 ? 'Результат' : 'Дальше'; $n.style.display = 'inline-flex'; $n.focus({ preventScroll: true });
+  }
+  function result() {
+    $('#qBar').style.width = '100%';
+    const r = $('#quizResult'); $('#quizBody').style.display = 'none'; r.style.display = 'block';
+    let rank, msg;
+    if (score >= 9) { rank = 'Мастер-детектив'; msg = 'Отличный результат! Ты уверенно разбираешься в дипфейках.'; }
+    else if (score >= 7) { rank = 'Опытный следователь'; msg = 'Хорошо! Осталось подтянуть пару деталей.'; }
+    else if (score >= 5) { rank = 'Начинающий сыщик'; msg = 'Неплохо, но стоит перечитать разделы «Признаки» и «Защита».'; }
+    else { rank = 'Новичок'; msg = 'Не страшно! Изучи сайт ещё раз и попробуй снова.'; }
+    r.innerHTML = `<div class="score">${score}/${Q.length}</div><h3>${rank}</h3><p style="color:var(--muted);margin-bottom:20px">${msg}</p><button class="btn" id="qAgain" type="button">Пройти заново</button>`;
+    $('#qAgain').addEventListener('click', () => { i = 0; score = 0; r.style.display = 'none'; $('#quizBody').style.display = 'block'; render(); });
+    if (score >= 9) toast('Рекорд! Ты — мастер-детектив');
+  }
+  $n.addEventListener('click', () => { if (i < Q.length - 1) { i++; render(); } else result(); });
+  render();
+})();
+
+/* =====================================================
+   13. ЧЕК-ЛИСТ ПРИЗНАКОВ
+   ===================================================== */
+(function checklist() {
+  const items = [
+    ['Моргание и взгляд', 'Моргает слишком редко/часто или взгляд «плывёт», блики в глазах разные.'],
+    ['Тени и освещение', 'Свет на лице не совпадает со светом в кадре, тени «живут своей жизнью».'],
+    ['Края лица и волосы', 'Размытая граница на линии волос, шеи и ушей, «мерцание» контура.'],
+    ['Синхронизация губ', 'Движение губ и зубов не совпадает со звуком, рот выглядит «мыльно».'],
+    ['Звук и интонации', 'Голос ровный, «металлический», странные паузы и дыхание, шум не меняется со сценой.'],
+    ['Источник и контекст', 'Нет первоисточника, аккаунт-однодневка, о событии не пишут надёжные издания.'],
+    ['Слишком эмоциональный посыл', 'Ролик давит на страх и гнев, требует срочно делиться или переводить деньги.'],
+    ['Мелкие детали', 'Странные руки, украшения, текст на заднем плане, искажения при резком повороте головы.']
+  ];
+  const box = $('#checklist'), pct = $('#detPct'), bar = $('#detBar'), ver = $('#detVerdict');
+  items.forEach((it, k) => {
+    const l = document.createElement('label'); l.className = 'chk reveal in';
+    l.innerHTML = `<input type="checkbox" data-i="${k}"><span class="box" aria-hidden="true">✓</span><span><b>${it[0]}</b><span class="t">${it[1]}</span></span>`;
+    box.appendChild(l);
+  });
+  function upd() {
+    const n = $$('input:checked', box).length, p = Math.round(n / items.length * 100);
+    pct.textContent = p + '%'; bar.style.width = p + '%';
+    ver.textContent = n === 0 ? 'Отметь признаки, которые заметил(а).'
+      : n <= 2 ? 'Пока мало признаков. Но это ещё не значит, что ролик настоящий. Проверь источник.'
+      : n <= 5 ? 'Подозрительно! Не пересылай ролик и поищи первоисточник.'
+      : 'Очень высокая вероятность подделки. Не распространяй и сообщи взрослым, если ролик причиняет вред.';
+  }
+  box.addEventListener('change', upd); upd();
+})();
+
+/* =====================================================
+   14. ОПРОС (localStorage)
+   ===================================================== */
+(function poll() {
+  const opts = ['Да, всегда', 'Иногда', 'Вряд ли', 'Нет, не смогу'];
+  const KEY = 'df_poll_v1', VKEY = 'df_poll_voted';
+  const box = $('#pollBox'), info = $('#pollInfo');
+  let data;
+  try { data = JSON.parse(store.get(KEY, 'null')); } catch (e) { data = null; }
+  if (!Array.isArray(data) || data.length !== opts.length) data = opts.map(() => 0);
+  let voted = store.get(VKEY, '') !== '';
+
+  function render() {
+    const total = data.reduce((a, b) => a + b, 0);
+    box.innerHTML = '';
+    opts.forEach((t, k) => {
+      const p = total ? Math.round(data[k] / total * 100) : 0;
+      const row = document.createElement('div'); row.className = 'poll-row';
+      row.innerHTML = `<button type="button" ${voted ? 'disabled' : ''}><span class="fill"></span><span class="lbl"><span>${t}</span><span class="pc">${voted ? p + '%' : ''}</span></span></button>`;
+      const b = $('button', row);
+      b.addEventListener('click', () => { data[k]++; voted = true; store.set(KEY, JSON.stringify(data)); store.set(VKEY, '1'); render(); toast('Спасибо за голос!'); });
+      box.appendChild(row);
+      if (voted) requestAnimationFrame(() => requestAnimationFrame(() => { $('.fill', row).style.width = p + '%'; }));
+    });
+    info.textContent = voted ? `Всего голосов в этом браузере: ${total}` : 'Выбери вариант, чтобы увидеть результаты.';
+  }
+  $('#pollReset').addEventListener('click', () => { data = opts.map(() => 0); voted = false; store.set(KEY, JSON.stringify(data)); store.set(VKEY, ''); render(); });
+  render();
+})();
+
+/* =====================================================
+   15. ПАСХАЛКИ: Konami-код и 5 кликов по логотипу
+   ===================================================== */
+(function easter() {
+  function toggleMatrix() {
+    state.matrix = !state.matrix;
+    body.classList.toggle('matrix', state.matrix);
+    readPalette();
+    if (window.__resetBg) window.__resetBg();
+    toast(state.matrix ? 'режим призрака включён' : 'режим призрака выключен');
+  }
+  const code = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+  let pos = 0;
+  addEventListener('keydown', e => {
+    const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+    pos = (k === code[pos]) ? pos + 1 : (k === code[0] ? 1 : 0);
+    if (pos === code.length) { pos = 0; toggleMatrix(); }
+  });
+  let clicks = 0, ct;
+  $('#logo').addEventListener('click', () => {
+    clicks++; clearTimeout(ct); ct = setTimeout(() => clicks = 0, 1500);
+    if (clicks >= 5) { clicks = 0; toggleMatrix(); }
+  });
+})();
+
+/* =====================================================
+   СТАРТ
+   ===================================================== */
+/* Голые деревья на фоне: рисуются кодом, у каждого посетителя чуть разные */
+(function forest() {
+  const svg = $('#forestSvg'); if (!svg) return;
+  const NS = 'http://www.w3.org/2000/svg', lv = ['', '', '', '', '', '', ''];
+  function br(x, y, a, l, d) {
+    if (d > 6 || l < 6) return;
+    const x2 = x + Math.cos(a) * l, y2 = y + Math.sin(a) * l;
+    lv[d] += 'M' + x.toFixed(1) + ' ' + y.toFixed(1) + 'L' + x2.toFixed(1) + ' ' + y2.toFixed(1);
+    const n = d < 2 ? 2 : (Math.random() < .5 ? 2 : 3);
+    for (let i = 0; i < n; i++) br(x2, y2, a + (Math.random() - .5) * 1.1, l * (.68 + Math.random() * .15), d + 1);
+  }
+  const trees = 16;
+  for (let i = 0; i < trees; i++) br(40 + i * (1120 / (trees - 1)) + (Math.random() - .5) * 40, 600, -Math.PI / 2 + (Math.random() - .5) * .2, 110 + Math.random() * 70, 0);
+  const widths = [9, 6, 4, 2.8, 1.8, 1.2, .8];
+  lv.forEach((d, i) => {
+    const p = document.createElementNS(NS, 'path');
+    p.setAttribute('d', d); p.setAttribute('stroke', '#050408'); p.setAttribute('stroke-linecap', 'round');
+    p.setAttribute('fill', 'none'); p.setAttribute('stroke-width', String(widths[i])); svg.appendChild(p);
+  });
+})();
+
+runIntro();
+})();
+</script>
+</body>
+</html>
